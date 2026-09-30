@@ -43,4 +43,8 @@ Route::get('/produits', [ProductController::class, 'index'])
 Route::get('/produits/{product:slug}', [ProductController::class, 'show'])
     ->name('products.show');
 
+Route::get('/panier', function(){
+    return Inertia::render('Cart');
+})->name('cart');
+
 require __DIR__.'/auth.php';
