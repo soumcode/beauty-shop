@@ -93,15 +93,14 @@ class CheckoutController extends Controller
                 'string',
                 'max:1000',
             ],
+
+            'payment_method' => [
+                'required',
+                'in:cash_on_delivery,online',
+            ],
         ]);
 
         $user = auth()->user();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Adresse enregistrée
-        |--------------------------------------------------------------------------
-        */
 
         if ($validated['address_id'] ?? null) {
             $savedAddress = $user->addresses()
@@ -116,13 +115,6 @@ class CheckoutController extends Controller
         }
 
         return DB::transaction(function () use ($validated, $user) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Récupération des produits
-            |--------------------------------------------------------------------------
-            */
-
             $productIds = collect($validated['items'])
                 ->pluck('id')
                 ->all();
@@ -132,12 +124,6 @@ class CheckoutController extends Controller
                 ->lockForUpdate()
                 ->get()
                 ->keyBy('id');
-
-            /*
-            |--------------------------------------------------------------------------
-            | Vérification des produits
-            |--------------------------------------------------------------------------
-            */
 
             if ($products->count() !== count($productIds)) {
                 abort(
@@ -158,75 +144,40 @@ class CheckoutController extends Controller
                     );
                 }
 
-                $subtotal +=
-                    (float) $product->price * $item['quantity'];
+                $subtotal += (float) $product->price * $item['quantity'];
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Frais de livraison
-            |--------------------------------------------------------------------------
-            */
-
             $deliveryFee = 2000;
-
             $total = $subtotal + $deliveryFee;
-
-            /*
-            |--------------------------------------------------------------------------
-            | Création de la commande
-            |--------------------------------------------------------------------------
-            */
 
             $order = Order::create([
                 'user_id' => $user->id,
-
                 'status' => 'pending',
-
                 'subtotal' => $subtotal,
-
                 'delivery_fee' => $deliveryFee,
-
                 'total' => $total,
 
+                /*
+                 * Pour le moment, le paiement réel en ligne
+                 * n'est pas encore connecté à CinetPay.
+                 */
                 'payment_method' => 'cash_on_delivery',
-
                 'payment_status' => 'pending',
 
                 'delivery_name' => $validated['name'],
-
                 'delivery_phone' => $validated['phone'],
-
                 'delivery_city' => $validated['city'],
-
                 'delivery_commune' => $validated['commune'],
-
                 'delivery_quartier' => $validated['quartier'],
-
                 'delivery_address' => $validated['address'],
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Historique initial
-            |--------------------------------------------------------------------------
-            */
-
             OrderStatusHistory::create([
                 'order_id' => $order->id,
-
                 'status' => 'pending',
-
                 'changed_by' => $user->id,
-
                 'comment' => 'Commande créée.',
             ]);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Création des lignes de commande
-            |--------------------------------------------------------------------------
-            */
 
             foreach ($validated['items'] as $item) {
                 $product = $products->get($item['id']);
@@ -236,19 +187,10 @@ class CheckoutController extends Controller
 
                 $order->items()->create([
                     'product_id' => $product->id,
-
                     'quantity' => $item['quantity'],
-
                     'unit_price' => $product->price,
-
                     'total' => $lineTotal,
                 ]);
-
-                /*
-                |--------------------------------------------------------------------------
-                | Diminution du stock
-                |--------------------------------------------------------------------------
-                */
 
                 $product->decrement(
                     'stock',
@@ -256,11 +198,10 @@ class CheckoutController extends Controller
                 );
             }
 
-            return redirect()
-                ->route(
-                    'orders.confirmation',
-                    $order
-                );
+            return redirect()->route(
+                'orders.confirmation',
+                $order
+            );
         });
     }
 

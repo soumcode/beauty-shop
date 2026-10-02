@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react'
 import {
     ArrowLeft,
     Check,
+    CreditCard,
     MapPin,
     ShoppingBag,
 } from 'lucide-react'
@@ -55,6 +56,8 @@ export default function Checkout({
         quartier: defaultAddress?.quartier || '',
 
         address: defaultAddress?.address || '',
+
+        payment_method: 'cash_on_delivery',
 
         items: [],
     })
@@ -248,13 +251,9 @@ export default function Checkout({
                                                         value={address.id}
                                                     >
                                                         {address.name} -{' '}
-                                                        {
-                                                            address.commune
-                                                        }{' '}
+                                                        {address.commune}{' '}
                                                         /{' '}
-                                                        {
-                                                            address.quartier
-                                                        }
+                                                        {address.quartier}
                                                         {address.is_default
                                                             ? ' - Par défaut'
                                                             : ''}
@@ -468,30 +467,99 @@ export default function Checkout({
                         {/* Paiement */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>
+                                <CardTitle className="flex items-center gap-2">
+                                    <CreditCard className="h-5 w-5" />
                                     Mode de paiement
                                 </CardTitle>
                             </CardHeader>
 
-                            <CardContent>
-                                <div className="rounded-lg border p-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                                            <Check className="h-5 w-5" />
-                                        </div>
+                            <CardContent className="space-y-3">
+                                {/* Paiement à la livraison */}
+                                <label
+                                    htmlFor="cash_on_delivery"
+                                    className={`flex cursor-pointer items-start gap-4 rounded-lg border p-4 transition ${
+                                        form.data.payment_method ===
+                                        'cash_on_delivery'
+                                            ? 'border-primary bg-primary/5'
+                                            : 'hover:bg-muted/50'
+                                    }`}
+                                >
+                                    <input
+                                        id="cash_on_delivery"
+                                        type="radio"
+                                        name="payment_method"
+                                        value="cash_on_delivery"
+                                        checked={
+                                            form.data.payment_method ===
+                                            'cash_on_delivery'
+                                        }
+                                        onChange={(event) =>
+                                            form.setData(
+                                                'payment_method',
+                                                event.target.value
+                                            )
+                                        }
+                                        className="mt-1 h-4 w-4"
+                                    />
 
-                                        <div>
-                                            <p className="font-medium">
-                                                Paiement à la livraison
-                                            </p>
-
-                                            <p className="text-sm text-muted-foreground">
-                                                Vous paierez votre commande
-                                                au moment de la livraison.
-                                            </p>
-                                        </div>
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                                        <Check className="h-5 w-5" />
                                     </div>
-                                </div>
+
+                                    <div>
+                                        <p className="font-medium">
+                                            Paiement à la livraison
+                                        </p>
+
+                                        <p className="text-sm text-muted-foreground">
+                                            Vous paierez votre commande
+                                            au moment de la livraison.
+                                        </p>
+                                    </div>
+                                </label>
+
+                                {/* Paiement en ligne */}
+                                <label
+                                    htmlFor="online"
+                                    className="flex cursor-not-allowed items-start gap-4 rounded-lg border p-4 opacity-60"
+                                >
+                                    <input
+                                        id="online"
+                                        type="radio"
+                                        name="payment_method"
+                                        value="online"
+                                        disabled
+                                        className="mt-1 h-4 w-4"
+                                    />
+
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                                        <CreditCard className="h-5 w-5" />
+                                    </div>
+
+                                    <div>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <p className="font-medium">
+                                                Paiement en ligne
+                                            </p>
+
+                                            <span className="rounded-full bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+                                                Bientôt disponible
+                                            </span>
+                                        </div>
+
+                                        <p className="text-sm text-muted-foreground">
+                                            Payez avec Wave, Orange Money,
+                                            MTN Money et d'autres moyens
+                                            via CinetPay.
+                                        </p>
+                                    </div>
+                                </label>
+
+                                {form.errors.payment_method && (
+                                    <p className="text-sm text-destructive">
+                                        {form.errors.payment_method}
+                                    </p>
+                                )}
                             </CardContent>
                         </Card>
 
