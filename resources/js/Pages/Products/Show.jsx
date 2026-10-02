@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react'
+import PublicLayout from '@/layouts/PublicLayout'
 
 import {
     Card,
@@ -124,3 +125,10 @@ export default function Show({ product }) {
         </div>
     )
 }
+
+
+Show.layout = (page) => (
+    <PublicLayout>
+        {page}
+    </PublicLayout>
+)

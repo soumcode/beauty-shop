@@ -14,6 +14,7 @@ class Order extends Model
         'total',
         'payment_method',
         'payment_status',
+
         'delivery_name',
         'delivery_phone',
         'delivery_city',
@@ -24,11 +25,28 @@ class Order extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(
+            User::class
+        );
     }
 
     public function items()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(
+            OrderItem::class
+        );
+    }
+
+    public function delivery()
+    {
+        return $this->hasOne(
+            Delivery::class
+        );
+    }
+
+    public function statusHistories()
+    {
+        return $this->hasMany(OrderStatusHistory::class)
+            ->latest();
     }
 }

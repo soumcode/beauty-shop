@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react'
+import PublicLayout from '@/layouts/PublicLayout'
 
 import {
     Card,
@@ -213,3 +214,10 @@ export default function Index({
         </div>
     )
 }
+
+
+Index.layout = (page) => (
+    <PublicLayout>
+        {page}
+    </PublicLayout>
+)

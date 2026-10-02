@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import PublicLayout from '@/layouts/PublicLayout'
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const handleImageError = () => {
@@ -359,3 +360,10 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
         </>
     );
 }
+
+
+Welcome.layout = (page) => (
+    <PublicLayout>
+        {page}
+    </PublicLayout>
+)

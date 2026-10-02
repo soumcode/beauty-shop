@@ -1,5 +1,6 @@
 import { Link, useForm } from '@inertiajs/react'
 import { useEffect, useState } from 'react'
+import AppLayout from '@/layouts/AppLayout'
 
 import {
     Card,
@@ -450,3 +451,10 @@ export default function Create({ categories }) {
         </div>
     )
 }
+
+
+Create.layout = (page) => (
+    <AppLayout>
+        {page}
+    </AppLayout>
+)

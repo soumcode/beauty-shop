@@ -24,11 +24,16 @@ class Delivery extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(
+            Order::class
+        );
     }
 
     public function driver()
     {
-        return $this->belongsTo(User::class, 'driver_id');
+        return $this->belongsTo(
+            User::class,
+            'driver_id'
+        );
     }
 }

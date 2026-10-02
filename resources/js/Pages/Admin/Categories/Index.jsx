@@ -1,4 +1,5 @@
 import { Link, useForm } from '@inertiajs/react'
+import AppLayout from '@/layouts/AppLayout'
 import {
     Card,
     CardContent,
@@ -127,3 +128,10 @@ export default function Index({ categories }) {
         </div>
     )
 }
+
+
+Index.layout = (page) => (
+    <AppLayout>
+        {page}
+    </AppLayout>
+)
