@@ -43,7 +43,7 @@ export default function Index({ addresses }) {
             <Head title="Mes adresses" />
 
             <div className="mx-auto max-w-5xl space-y-8 p-6">
-                {/* En-tête */}
+                {}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-3xl font-bold">
@@ -63,14 +63,14 @@ export default function Index({ addresses }) {
                     </Button>
                 </div>
 
-                {/* Message */}
+                {}
                 {flash?.success && (
                     <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
                         {flash.success}
                     </div>
                 )}
 
-                {/* Aucune adresse */}
+                {}
                 {addresses.length === 0 ? (
                     <Card>
                         <CardContent className="flex flex-col items-center justify-center py-16 text-center">

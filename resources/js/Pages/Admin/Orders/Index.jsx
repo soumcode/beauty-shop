@@ -57,7 +57,7 @@ export default function Index({
 
             <div className="mx-auto max-w-7xl">
 
-                {/* En-tête */}
+                {}
                 <div className="mb-6">
 
                     <h1 className="text-3xl font-bold">
@@ -70,7 +70,7 @@ export default function Index({
 
                 </div>
 
-                {/* Filtres */}
+                {}
                 <Card className="mb-6">
 
                     <CardContent className="pt-6">
@@ -137,7 +137,7 @@ export default function Index({
 
                 </Card>
 
-                {/* Tableau */}
+                {}
                 <Card>
 
                     <CardHeader>
@@ -300,7 +300,7 @@ export default function Index({
 
                         </div>
 
-                        {/* Pagination */}
+                        {}
                         <div className="mt-6 flex flex-wrap gap-2">
 
                             {orders.links.map(

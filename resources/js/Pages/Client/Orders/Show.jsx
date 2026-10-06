@@ -76,7 +76,7 @@ export default function Show({ order }) {
             <Head title={`Commande #${order.id}`} />
 
             <div className="container mx-auto space-y-6 px-4 py-6">
-                {/* En-tête */}
+                {}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                         <Button variant="ghost" size="icon" asChild>
@@ -127,9 +127,9 @@ export default function Show({ order }) {
                 </div>
 
                 <div className="grid gap-6 lg:grid-cols-3">
-                    {/* Contenu principal */}
+                    {}
                     <div className="space-y-6 lg:col-span-2">
-                        {/* Produits */}
+                        {}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -194,7 +194,7 @@ export default function Show({ order }) {
                             </CardContent>
                         </Card>
 
-                        {/* Suivi de la commande */}
+                        {}
                         <Card>
                             <CardHeader>
                                 <CardTitle>
@@ -305,7 +305,7 @@ export default function Show({ order }) {
                             </CardContent>
                         </Card>
 
-                        {/* Adresse de livraison */}
+                        {}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -348,7 +348,7 @@ export default function Show({ order }) {
                             </CardContent>
                         </Card>
 
-                        {/* Livraison */}
+                        {}
                         {order.delivery && (
                             <Card>
                                 <CardHeader>
@@ -471,9 +471,9 @@ export default function Show({ order }) {
                         )}
                     </div>
 
-                    {/* Résumé */}
+                    {}
                     <div className="space-y-6">
-                        {/* Paiement */}
+                        {}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -515,7 +515,7 @@ export default function Show({ order }) {
                             </CardContent>
                         </Card>
 
-                        {/* Résumé de la commande */}
+                        {}
                         <Card>
                             <CardHeader>
                                 <CardTitle>

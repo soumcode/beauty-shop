@@ -18,21 +18,13 @@ use App\Http\Controllers\ProfileController as AuthProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-/*
-|--------------------------------------------------------------------------
-| Routes publiques
-|--------------------------------------------------------------------------
-*/
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
-/*
-|--------------------------------------------------------------------------
-| Boutique
-|--------------------------------------------------------------------------
-*/
+
 
 Route::get('/produits', [
     ProductController::class,
@@ -44,21 +36,13 @@ Route::get('/produits/{product:slug}', [
     'show',
 ])->name('products.show');
 
-/*
-|--------------------------------------------------------------------------
-| Panier
-|--------------------------------------------------------------------------
-*/
+
 
 Route::get('/panier', function () {
     return Inertia::render('Cart');
 })->name('cart');
 
-/*
-|--------------------------------------------------------------------------
-| Routes authentifiées
-|--------------------------------------------------------------------------
-*/
+
 
 Route::post(
     '/webhooks/geniuspay',
@@ -186,11 +170,7 @@ Route::middleware('auth')->group(function () {
     )->name('client.orders.cancel');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Administration
-|--------------------------------------------------------------------------
-*/
+
 
 Route::middleware([
     'auth',
@@ -199,23 +179,17 @@ Route::middleware([
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        /*
-         * Catégories
-         */
+        
         Route::resource('categories', CategoryController::class)->except([
             'show',
         ]);
 
-        /*
-         * Produits
-         */
+        
         Route::resource('products', AdminProductController::class)->except([
             'show',
         ]);
 
-        /*
-         * Commandes
-         */
+        
         Route::get('/commandes', [
             OrderController::class,
             'index',
@@ -236,9 +210,7 @@ Route::middleware([
             'assignDriver',
         ])->name('orders.assign-driver');
 
-        /*
-         * Livreurs
-         */
+        
         Route::resource('drivers', DriverController::class)->except([
             'show',
             'destroy',
@@ -248,11 +220,7 @@ Route::middleware([
             ->name('dashboard');
     });
 
-/*
-|--------------------------------------------------------------------------
-| Espace livreur
-|--------------------------------------------------------------------------
-*/
+
 
 Route::middleware(['auth', 'livreur'])
     ->prefix('livreur')
@@ -279,10 +247,6 @@ Route::middleware(['auth', 'livreur'])
         ])->name('deliveries.update-status');
     });
 
-/*
-|--------------------------------------------------------------------------
-| Authentification Breeze
-|--------------------------------------------------------------------------
-*/
+
 
 require __DIR__.'/auth.php';

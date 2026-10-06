@@ -35,10 +35,7 @@ export default function Create({ categories }) {
     const [imagePreview, setImagePreview] =
         useState(null)
 
-    /*
-     * Créer une prévisualisation lorsque
-     * l'utilisateur sélectionne une image.
-     */
+    
     useEffect(() => {
         if (!data.image) {
             setImagePreview(null)
@@ -69,7 +66,7 @@ export default function Create({ categories }) {
     return (
         <div className="p-6">
 
-            {/* Retour */}
+            {}
             <div className="mb-6">
 
                 <Button
@@ -87,7 +84,7 @@ export default function Create({ categories }) {
 
             </div>
 
-            {/* Formulaire */}
+            {}
             <Card className="mx-auto max-w-2xl">
 
                 <CardHeader>
@@ -105,7 +102,7 @@ export default function Create({ categories }) {
                         className="space-y-6"
                     >
 
-                        {/* Catégorie */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="category_id">
@@ -160,7 +157,7 @@ export default function Create({ categories }) {
 
                         </div>
 
-                        {/* Nom */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="name">
@@ -186,7 +183,7 @@ export default function Create({ categories }) {
 
                         </div>
 
-                        {/* Slug */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="slug">
@@ -213,7 +210,7 @@ export default function Create({ categories }) {
 
                         </div>
 
-                        {/* Description */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="description">
@@ -244,10 +241,10 @@ export default function Create({ categories }) {
 
                         </div>
 
-                        {/* Prix + Stock */}
+                        {}
                         <div className="grid gap-6 sm:grid-cols-2">
 
-                            {/* Prix */}
+                            {}
                             <div className="space-y-2">
 
                                 <Label htmlFor="price">
@@ -276,7 +273,7 @@ export default function Create({ categories }) {
 
                             </div>
 
-                            {/* Stock */}
+                            {}
                             <div className="space-y-2">
 
                                 <Label htmlFor="stock">
@@ -306,7 +303,7 @@ export default function Create({ categories }) {
 
                         </div>
 
-                        {/* Statut */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="status">
@@ -343,7 +340,7 @@ export default function Create({ categories }) {
 
                         </div>
 
-                        {/* Image */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="image">
@@ -371,7 +368,7 @@ export default function Create({ categories }) {
 
                         </div>
 
-                        {/* Prévisualisation */}
+                        {}
                         {imagePreview && (
                             <div className="mt-4">
 
@@ -388,7 +385,7 @@ export default function Create({ categories }) {
                             </div>
                         )}
 
-                        {/* Progression */}
+                        {}
                         {progress && (
                             <div className="mt-4">
 
@@ -414,7 +411,7 @@ export default function Create({ categories }) {
                             </div>
                         )}
 
-                        {/* Boutons */}
+                        {}
                         <div className="flex gap-3">
 
                             <Button

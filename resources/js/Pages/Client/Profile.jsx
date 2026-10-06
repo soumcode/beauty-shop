@@ -61,7 +61,7 @@ export default function Profile({ user }) {
             <Head title="Mon profil" />
 
             <div className="mx-auto max-w-4xl space-y-8 p-6">
-                {/* En-tête */}
+                {}
                 <div>
                     <h1 className="text-3xl font-bold">
                         Mon profil
@@ -73,14 +73,14 @@ export default function Profile({ user }) {
                     </p>
                 </div>
 
-                {/* Message de succès */}
+                {}
                 {flash?.success && (
                     <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
                         {flash.success}
                     </div>
                 )}
 
-                {/* Informations personnelles */}
+                {}
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -94,7 +94,7 @@ export default function Profile({ user }) {
                             onSubmit={submitProfile}
                             className="space-y-6"
                         >
-                            {/* Nom */}
+                            {}
                             <div className="space-y-2">
                                 <Label htmlFor="name">
                                     Nom complet
@@ -123,7 +123,7 @@ export default function Profile({ user }) {
                                 )}
                             </div>
 
-                            {/* Email */}
+                            {}
                             <div className="space-y-2">
                                 <Label htmlFor="email">
                                     Adresse e-mail
@@ -153,7 +153,7 @@ export default function Profile({ user }) {
                                 )}
                             </div>
 
-                            {/* Téléphone */}
+                            {}
                             <div className="space-y-2">
                                 <Label htmlFor="phone">
                                     Téléphone
@@ -198,7 +198,7 @@ export default function Profile({ user }) {
                     </CardContent>
                 </Card>
 
-                {/* Mot de passe */}
+                {}
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -212,7 +212,7 @@ export default function Profile({ user }) {
                             onSubmit={submitPassword}
                             className="space-y-6"
                         >
-                            {/* Mot de passe actuel */}
+                            {}
                             <div className="space-y-2">
                                 <Label htmlFor="current_password">
                                     Mot de passe actuel
@@ -244,7 +244,7 @@ export default function Profile({ user }) {
                                 )}
                             </div>
 
-                            {/* Nouveau mot de passe */}
+                            {}
                             <div className="space-y-2">
                                 <Label htmlFor="password">
                                     Nouveau mot de passe
@@ -271,7 +271,7 @@ export default function Profile({ user }) {
                                 )}
                             </div>
 
-                            {/* Confirmation */}
+                            {}
                             <div className="space-y-2">
                                 <Label htmlFor="password_confirmation">
                                     Confirmer le nouveau mot de passe

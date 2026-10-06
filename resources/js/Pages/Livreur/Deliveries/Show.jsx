@@ -41,7 +41,7 @@ export default function Show({
 
             <div className="mx-auto max-w-6xl">
 
-                {/* Retour */}
+                {}
                 <div className="mb-6">
 
                     <Button
@@ -59,7 +59,7 @@ export default function Show({
 
                 </div>
 
-                {/* En-tête */}
+                {}
                 <div className="mb-6">
 
                     <h1 className="text-3xl font-bold">
@@ -74,10 +74,10 @@ export default function Show({
 
                 <div className="grid gap-6 lg:grid-cols-3">
 
-                    {/* Colonne principale */}
+                    {}
                     <div className="space-y-6 lg:col-span-2">
 
-                        {/* Client */}
+                        {}
                         <Card>
 
                             <CardHeader>
@@ -112,7 +112,7 @@ export default function Show({
 
                         </Card>
 
-                        {/* Adresse */}
+                        {}
                         <Card>
 
                             <CardHeader>
@@ -155,7 +155,7 @@ export default function Show({
 
                         </Card>
 
-                        {/* Produits */}
+                        {}
                         <Card>
 
                             <CardHeader>
@@ -217,7 +217,7 @@ export default function Show({
 
                     </div>
 
-                    {/* Gestion */}
+                    {}
                     <Card className="h-fit">
 
                         <CardHeader>

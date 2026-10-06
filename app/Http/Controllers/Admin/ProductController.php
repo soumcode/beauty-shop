@@ -11,9 +11,7 @@ use Inertia\Inertia;
 
 class ProductController extends Controller
 {
-    /**
-     * Afficher la liste des produits.
-     */
+    
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -35,9 +33,7 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Afficher le formulaire de création.
-     */
+    
     public function create()
     {
         $categories = Category::where('is_active', true)
@@ -49,9 +45,7 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Enregistrer un nouveau produit.
-     */
+    
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -103,22 +97,16 @@ class ProductController extends Controller
             ],
         ]);
 
-        /*
-         * Vérifier si une image a été envoyée.
-         */
+        
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')
                 ->store('products', 'public');
         }
 
-        /*
-         * Enregistrer l'administrateur qui a créé le produit.
-         */
+        
         $validated['created_by'] = auth()->id();
 
-        /*
-         * Créer le produit.
-         */
+        
         Product::create($validated);
 
         return redirect()
@@ -126,9 +114,7 @@ class ProductController extends Controller
             ->with('success', 'Produit créé avec succès.');
     }
 
-    /**
-     * Afficher le formulaire de modification.
-     */
+    
     public function edit(Product $product)
     {
         $categories = Category::where('is_active', true)
@@ -141,9 +127,7 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Modifier un produit.
-     */
+    
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
@@ -195,10 +179,7 @@ class ProductController extends Controller
             ],
         ]);
 
-        /*
-         * Si une nouvelle image est envoyée,
-         * supprimer l'ancienne puis enregistrer la nouvelle.
-         */
+        
         if ($request->hasFile('image')) {
 
             if ($product->image) {
@@ -211,9 +192,7 @@ class ProductController extends Controller
                 ->store('products', 'public');
         }
 
-        /*
-         * Modifier le produit.
-         */
+        
         $product->update($validated);
 
         return redirect()
@@ -221,9 +200,7 @@ class ProductController extends Controller
             ->with('success', 'Produit modifié avec succès.');
     }
 
-    /**
-     * Supprimer un produit.
-     */
+    
     public function destroy(Product $product)
     {
         $product->delete();

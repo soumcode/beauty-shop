@@ -12,9 +12,7 @@ class GeniusPayWebhookController extends Controller
 {
     public function handle(Request $request)
     {
-        /*
-         * 1. Récupérer les informations de sécurité
-         */
+        
         $signature = $request->header(
             'X-Webhook-Signature'
         );
@@ -27,20 +25,14 @@ class GeniusPayWebhookController extends Controller
             'X-Webhook-Event'
         );
 
-        /*
-         * 2. Vérifier que les headers nécessaires existent
-         */
+        
         if (! $signature || ! $timestamp) {
             return response()->json([
                 'message' => 'Signature webhook manquante.',
             ], 401);
         }
 
-        /*
-         * 3. Protection contre les anciennes requêtes
-         *
-         * GeniusPay recommande une fenêtre de 5 minutes.
-         */
+        
         if (
             ! is_numeric($timestamp) ||
             abs(time() - (int) $timestamp) > 300
@@ -50,20 +42,10 @@ class GeniusPayWebhookController extends Controller
             ], 400);
         }
 
-        /*
-         * 4. Récupérer le corps JSON brut
-         *
-         * C'est important pour la vérification de la signature.
-         */
+        
         $rawPayload = $request->getContent();
 
-        /*
-         * 5. Recalculer la signature HMAC-SHA256
-         *
-         * Format documenté :
-         *
-         * timestamp + "." + json_payload
-         */
+        
         $signedData =
             $timestamp.'.'.$rawPayload;
 
@@ -73,9 +55,7 @@ class GeniusPayWebhookController extends Controller
             config('services.geniuspay.webhook_secret')
         );
 
-        /*
-         * 6. Vérifier la signature
-         */
+        
         if (
             ! hash_equals(
                 $expectedSignature,
@@ -87,9 +67,7 @@ class GeniusPayWebhookController extends Controller
             ], 401);
         }
 
-        /*
-         * 7. Décoder le JSON
-         */
+        
         $payload = json_decode(
             $rawPayload,
             true
@@ -101,9 +79,7 @@ class GeniusPayWebhookController extends Controller
             ], 400);
         }
 
-        /*
-         * 8. Récupérer l'événement
-         */
+        
         $event = $payload['event'] ?? $eventHeader;
 
         if (! $event) {
@@ -112,10 +88,7 @@ class GeniusPayWebhookController extends Controller
             ], 400);
         }
 
-        /*
-         * 9. Nous ne traitons que les événements
-         * de paiement que nous connaissons.
-         */
+        
         $supportedEvents = [
             'payment.success',
             'payment.failed',
@@ -130,9 +103,7 @@ class GeniusPayWebhookController extends Controller
             ]);
         }
 
-        /*
-         * 10. Récupérer les données du paiement
-         */
+        
         $paymentData = $payload['data'] ?? [];
 
         $reference =
@@ -148,9 +119,7 @@ class GeniusPayWebhookController extends Controller
             ], 400);
         }
 
-        /*
-         * 11. Récupérer notre paiement
-         */
+        
         $payment = Payment::where(
             'transaction_id',
             $reference
@@ -162,21 +131,14 @@ class GeniusPayWebhookController extends Controller
             ], 404);
         }
 
-        /*
-         * Vérification supplémentaire :
-         * le metadata order_id doit correspondre
-         * à notre Payment.
-         */
+        
         if ((string) $payment->order_id !== (string) $orderId) {
             return response()->json([
                 'message' => 'La commande ne correspond pas au paiement.',
             ], 400);
         }
 
-        /*
-         * 12. Éviter de traiter plusieurs fois
-         * un paiement déjà terminé.
-         */
+        
         if (
             in_array(
                 $payment->status,
@@ -190,9 +152,7 @@ class GeniusPayWebhookController extends Controller
             ]);
         }
 
-        /*
-         * 13. Traiter le résultat
-         */
+        
         DB::transaction(function () use (
             $payment,
             $event
@@ -223,10 +183,7 @@ class GeniusPayWebhookController extends Controller
             }
         });
 
-        /*
-         * 14. GeniusPay attend généralement
-         * une réponse HTTP 200.
-         */
+        
         return response()->json([
             'success' => true,
         ]);
@@ -251,10 +208,7 @@ class GeniusPayWebhookController extends Controller
         $order,
         string $event
     ): void {
-        /*
-         * Un paiement échoué / annulé / expiré
-         * ne doit pas laisser le stock bloqué.
-         */
+        
         $order->load('items');
 
         foreach ($order->items as $item) {

@@ -11,9 +11,7 @@ use Inertia\Inertia;
 
 class DriverController extends Controller
 {
-    /**
-     * Liste des livreurs.
-     */
+    
     public function index()
     {
         $drivers = User::where(
@@ -40,9 +38,7 @@ class DriverController extends Controller
         );
     }
 
-    /**
-     * Formulaire de création.
-     */
+    
     public function create()
     {
         return Inertia::render(
@@ -50,9 +46,7 @@ class DriverController extends Controller
         );
     }
 
-    /**
-     * Créer un livreur.
-     */
+    
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -94,10 +88,7 @@ class DriverController extends Controller
                 $validated['password']
             ),
 
-            /*
-             * Le rôle est toujours défini
-             * côté serveur.
-             */
+            
             'role' => 'livreur',
         ]);
 
@@ -109,9 +100,7 @@ class DriverController extends Controller
             );
     }
 
-    /**
-     * Formulaire de modification.
-     */
+    
     public function edit(User $driver)
     {
         abort_unless(
@@ -127,9 +116,7 @@ class DriverController extends Controller
         );
     }
 
-    /**
-     * Modifier un livreur.
-     */
+    
     public function update(
         Request $request,
         User $driver

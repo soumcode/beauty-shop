@@ -50,7 +50,7 @@ export default function Index({ orders }) {
             <Head title="Mes commandes" />
 
             <div className="space-y-8 p-6">
-                {/* En-tête */}
+                {}
                 <div>
                     <h1 className="text-3xl font-bold">
                         Mes commandes
@@ -61,7 +61,7 @@ export default function Index({ orders }) {
                     </p>
                 </div>
 
-                {/* Aucune commande */}
+                {}
                 {orders.data.length === 0 ? (
                     <Card>
                         <CardContent className="flex flex-col items-center justify-center py-16 text-center">
@@ -85,7 +85,7 @@ export default function Index({ orders }) {
                     </Card>
                 ) : (
                     <>
-                        {/* Liste des commandes */}
+                        {}
                         <div className="space-y-4">
                             {orders.data.map((order) => {
                                 const itemsCount =
@@ -153,7 +153,7 @@ export default function Index({ orders }) {
 
                                         <CardContent>
                                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                                {/* Total */}
+                                                {}
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
                                                         <Package className="h-5 w-5 text-muted-foreground" />
@@ -175,7 +175,7 @@ export default function Index({ orders }) {
                                                     </div>
                                                 </div>
 
-                                                {/* Paiement */}
+                                                {}
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
                                                         <CreditCard className="h-5 w-5 text-muted-foreground" />
@@ -196,7 +196,7 @@ export default function Index({ orders }) {
                                                     </div>
                                                 </div>
 
-                                                {/* Action */}
+                                                {}
                                                 <div className="flex items-center sm:justify-end">
                                                     <Button
                                                         asChild
@@ -220,7 +220,7 @@ export default function Index({ orders }) {
                             })}
                         </div>
 
-                        {/* Pagination */}
+                        {}
                         {orders.links &&
                             orders.links.length > 3 && (
                                 <div className="flex flex-wrap items-center justify-center gap-2">

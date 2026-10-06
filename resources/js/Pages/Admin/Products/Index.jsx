@@ -51,7 +51,7 @@ export default function Index({ products, filters }) {
     return (
         <div className="p-6">
 
-            {/* En-tête */}
+            {}
             <div className="mb-6 flex items-center justify-between">
 
                 <div>
@@ -76,7 +76,7 @@ export default function Index({ products, filters }) {
 
             </div>
 
-            {/* Recherche */}
+            {}
             <Card className="mb-6">
                 <CardContent className="pt-6">
 
@@ -108,7 +108,7 @@ export default function Index({ products, filters }) {
                 </CardContent>
             </Card>
 
-            {/* Tableau */}
+            {}
             <Card>
 
                 <CardHeader>
@@ -166,7 +166,7 @@ export default function Index({ products, filters }) {
                                             className="border-b"
                                         >
 
-                                            {/* Image */}
+                                            {}
                                             <td className="p-3">
 
                                                 {product.image ? (
@@ -183,17 +183,17 @@ export default function Index({ products, filters }) {
 
                                             </td>
 
-                                            {/* Nom */}
+                                            {}
                                             <td className="p-3">
                                                 {product.name}
                                             </td>
 
-                                            {/* Catégorie */}
+                                            {}
                                             <td className="p-3">
                                                 {product.category?.name}
                                             </td>
 
-                                            {/* Prix */}
+                                            {}
                                             <td className="p-3">
 
                                                 {Number(
@@ -205,12 +205,12 @@ export default function Index({ products, filters }) {
 
                                             </td>
 
-                                            {/* Stock */}
+                                            {}
                                             <td className="p-3">
                                                 {product.stock}
                                             </td>
 
-                                            {/* Statut */}
+                                            {}
                                             <td className="p-3">
 
                                                 {product.status ===
@@ -220,7 +220,7 @@ export default function Index({ products, filters }) {
 
                                             </td>
 
-                                            {/* Actions */}
+                                            {}
                                             <td className="p-3">
 
                                                 <div className="flex gap-2">
@@ -267,7 +267,7 @@ export default function Index({ products, filters }) {
 
                     </div>
 
-                    {/* Pagination */}
+                    {}
                     <div className="mt-6 flex flex-wrap gap-2">
 
                         {products.links.map(

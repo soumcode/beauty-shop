@@ -145,7 +145,7 @@ export default function AppLayout({ children }) {
 
     return (
         <div className="min-h-screen bg-muted/40">
-            {/* Overlay mobile */}
+            {}
             {sidebarOpen && (
                 <button
                     type="button"
@@ -155,7 +155,7 @@ export default function AppLayout({ children }) {
                 />
             )}
 
-            {/* Sidebar */}
+            {}
             <aside
                 className={`fixed inset-y-0 left-0 z-50 w-64 border-r bg-background transition-transform duration-200 lg:translate-x-0 ${
                     sidebarOpen
@@ -163,7 +163,7 @@ export default function AppLayout({ children }) {
                         : '-translate-x-full'
                 }`}
             >
-                {/* Logo */}
+                {}
                 <div className="flex h-16 items-center justify-between border-b px-6">
                     <Link
                         href={getHomeRoute()}
@@ -182,7 +182,7 @@ export default function AppLayout({ children }) {
                     </button>
                 </div>
 
-                {/* Informations utilisateur */}
+                {}
                 <div className="border-b px-6 py-4">
                     <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
@@ -201,7 +201,7 @@ export default function AppLayout({ children }) {
                     </div>
                 </div>
 
-                {/* Navigation */}
+                {}
                 <nav className="space-y-1 p-4">
                     {currentMenus.map((item) => {
                         const Icon = item.icon
@@ -226,7 +226,7 @@ export default function AppLayout({ children }) {
                     })}
                 </nav>
 
-                {/* Déconnexion */}
+                {}
                 <div className="absolute bottom-0 w-full border-t p-4">
                     <button
                         type="button"
@@ -240,9 +240,9 @@ export default function AppLayout({ children }) {
                 </div>
             </aside>
 
-            {/* Contenu principal */}
+            {}
             <div className="lg:pl-64">
-                {/* Header mobile */}
+                {}
                 <header className="flex h-16 items-center border-b bg-background px-4 lg:hidden">
                     <button
                         type="button"
@@ -257,7 +257,7 @@ export default function AppLayout({ children }) {
                     </span>
                 </header>
 
-                {/* Page */}
+                {}
                 <main>{children}</main>
             </div>
         </div>

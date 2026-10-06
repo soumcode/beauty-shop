@@ -9,9 +9,7 @@ use Inertia\Inertia;
 
 class ProductController extends Controller
 {
-    /**
-     * Afficher les produits de la boutique.
-     */
+    
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -45,9 +43,7 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Afficher le détail d'un produit.
-     */
+    
     public function show(Product $product)
     {
         if (

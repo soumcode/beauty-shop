@@ -23,7 +23,7 @@ export default function Show({ product }) {
     return (
         <div className="min-h-screen bg-muted/30">
             <div className="mx-auto max-w-6xl px-6 py-10">
-                {/* Retour */}
+                {}
                 <Button
                     variant="outline"
                     asChild
@@ -40,7 +40,7 @@ export default function Show({ product }) {
 
                 <Card className="overflow-hidden">
                     <div className="grid md:grid-cols-2">
-                        {/* Image */}
+                        {}
                         <div className="min-h-[400px] bg-muted">
                             {product.image ? (
                                 <img
@@ -55,7 +55,7 @@ export default function Show({ product }) {
                             )}
                         </div>
 
-                        {/* Informations */}
+                        {}
                         <CardContent className="flex flex-col justify-center p-8">
                             <Badge
                                 variant="secondary"

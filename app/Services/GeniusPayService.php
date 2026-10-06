@@ -8,11 +8,7 @@ use RuntimeException;
 
 class GeniusPayService
 {
-    /**
-     * Crée un paiement GeniusPay.
-     *
-     * GeniusPay génère lui-même la référence de transaction.
-     */
+    
     public function createPayment(Order $order): array
     {
         $response = Http::withHeaders([
@@ -53,10 +49,7 @@ class GeniusPayService
                 ]
             );
 
-        /*
-         * Erreur HTTP :
-         * GeniusPay n'a pas correctement répondu.
-         */
+        
         if ($response->failed()) {
             throw new RuntimeException(
                 'Impossible de contacter GeniusPay.'
@@ -65,13 +58,7 @@ class GeniusPayService
 
         $data = $response->json();
 
-        /*
-         * GeniusPay doit nous retourner :
-         *
-         * success = true
-         * data.reference
-         * data.checkout_url
-         */
+        
         if (
             ! ($data['success'] ?? false) ||
             empty($data['data']['reference']) ||
@@ -113,10 +100,7 @@ class GeniusPayService
         ];
     }
 
-    /**
-     * Récupère les informations d'un paiement
-     * à partir de sa référence GeniusPay.
-     */
+    
     public function getPayment(string $reference): array
     {
         $response = Http::withHeaders([

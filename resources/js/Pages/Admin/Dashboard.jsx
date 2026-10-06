@@ -81,7 +81,7 @@ export default function Dashboard({ statistics, recentOrders }) {
                     </p>
                 </div>
 
-                {/* Statistiques principales */}
+                {}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     {statCards.map((stat) => {
                         const Icon = stat.icon
@@ -106,7 +106,7 @@ export default function Dashboard({ statistics, recentOrders }) {
                     })}
                 </div>
 
-                {/* Statistiques des commandes */}
+                {}
                 <div>
                     <h2 className="mb-4 text-xl font-semibold">
                         État des commandes
@@ -137,7 +137,7 @@ export default function Dashboard({ statistics, recentOrders }) {
                     </div>
                 </div>
 
-                {/* Commandes récentes */}
+                {}
                 <Card>
                     <CardHeader>
                         <CardTitle>

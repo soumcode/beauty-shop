@@ -46,11 +46,7 @@ export default function Edit({
                 : null
         )
 
-    /*
-     * Si l'utilisateur sélectionne
-     * une nouvelle image, on affiche
-     * cette nouvelle image.
-     */
+    
     useEffect(() => {
         if (!data.image) {
             return
@@ -84,7 +80,7 @@ export default function Edit({
     return (
         <div className="p-6">
 
-            {/* Retour */}
+            {}
             <div className="mb-6">
 
                 <Button
@@ -102,7 +98,7 @@ export default function Edit({
 
             </div>
 
-            {/* Formulaire */}
+            {}
             <Card className="mx-auto max-w-2xl">
 
                 <CardHeader>
@@ -120,7 +116,7 @@ export default function Edit({
                         className="space-y-6"
                     >
 
-                        {/* Catégorie */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="category_id">
@@ -170,7 +166,7 @@ export default function Edit({
 
                         </div>
 
-                        {/* Nom */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="name">
@@ -196,7 +192,7 @@ export default function Edit({
 
                         </div>
 
-                        {/* Slug */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="slug">
@@ -222,7 +218,7 @@ export default function Edit({
 
                         </div>
 
-                        {/* Description */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="description">
@@ -253,10 +249,10 @@ export default function Edit({
 
                         </div>
 
-                        {/* Prix + Stock */}
+                        {}
                         <div className="grid gap-6 sm:grid-cols-2">
 
-                            {/* Prix */}
+                            {}
                             <div className="space-y-2">
 
                                 <Label htmlFor="price">
@@ -285,7 +281,7 @@ export default function Edit({
 
                             </div>
 
-                            {/* Stock */}
+                            {}
                             <div className="space-y-2">
 
                                 <Label htmlFor="stock">
@@ -315,7 +311,7 @@ export default function Edit({
 
                         </div>
 
-                        {/* Statut */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="status">
@@ -352,7 +348,7 @@ export default function Edit({
 
                         </div>
 
-                        {/* Image */}
+                        {}
                         <div className="space-y-2">
 
                             <Label htmlFor="image">
@@ -380,7 +376,7 @@ export default function Edit({
 
                         </div>
 
-                        {/* Prévisualisation */}
+                        {}
                         {imagePreview && (
                             <div className="mt-4">
 
@@ -397,7 +393,7 @@ export default function Edit({
                             </div>
                         )}
 
-                        {/* Progression */}
+                        {}
                         {progress && (
                             <div className="mt-4">
 
@@ -423,7 +419,7 @@ export default function Edit({
                             </div>
                         )}
 
-                        {/* Boutons */}
+                        {}
                         <div className="flex gap-3">
 
                             <Button

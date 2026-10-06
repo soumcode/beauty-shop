@@ -73,7 +73,7 @@ export default function Dashboard({
             <Head title="Mon dashboard" />
 
             <div className="space-y-8 p-6">
-                {/* En-tête */}
+                {}
                 <div>
                     <h1 className="text-3xl font-bold">
                         Bonjour, {user.name} 👋
@@ -84,7 +84,7 @@ export default function Dashboard({
                     </p>
                 </div>
 
-                {/* Statistiques */}
+                {}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     {statCards.map((stat) => {
                         const Icon = stat.icon
@@ -109,7 +109,7 @@ export default function Dashboard({
                     })}
                 </div>
 
-                {/* Commandes récentes */}
+                {}
                 <Card>
                     <CardHeader>
                         <CardTitle>
@@ -189,7 +189,7 @@ export default function Dashboard({
                     </CardContent>
                 </Card>
 
-                {/* Action principale */}
+                {}
                 <Card>
                     <CardHeader>
                         <CardTitle>

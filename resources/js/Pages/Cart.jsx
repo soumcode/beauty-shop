@@ -23,9 +23,7 @@ export default function Cart() {
 
     const total = getCartTotal()
 
-    /*
-     * Panier vide
-     */
+    
     if (cartItems.length === 0) {
         return (
             <div className="min-h-screen bg-muted/30 p-6">
@@ -73,7 +71,7 @@ export default function Cart() {
 
             <div className="mx-auto max-w-6xl">
 
-                {/* En-tête */}
+                {}
                 <div className="mb-8">
 
                     <h1 className="text-3xl font-bold">
@@ -89,7 +87,7 @@ export default function Cart() {
 
                 <div className="grid gap-6 lg:grid-cols-3">
 
-                    {/* Produits */}
+                    {}
                     <div className="space-y-4 lg:col-span-2">
 
                         {cartItems.map(
@@ -100,7 +98,7 @@ export default function Cart() {
 
                                         <div className="flex gap-4">
 
-                                            {/* Image */}
+                                            {}
                                             <div className="h-24 w-24 shrink-0 overflow-hidden rounded-md bg-muted">
 
                                                 {item.image ? (
@@ -117,7 +115,7 @@ export default function Cart() {
 
                                             </div>
 
-                                            {/* Informations */}
+                                            {}
                                             <div className="flex flex-1 flex-col justify-between">
 
                                                 <div>
@@ -141,7 +139,7 @@ export default function Cart() {
 
                                                 <div className="mt-4 flex flex-wrap items-center gap-3">
 
-                                                    {/* Quantité */}
+                                                    {}
                                                     <div className="flex items-center rounded-md border">
 
                                                         <Button
@@ -180,7 +178,7 @@ export default function Cart() {
 
                                                     </div>
 
-                                                    {/* Supprimer */}
+                                                    {}
                                                     <Button
                                                         variant="destructive"
                                                         size="sm"
@@ -197,7 +195,7 @@ export default function Cart() {
 
                                             </div>
 
-                                            {/* Sous-total */}
+                                            {}
                                             <div className="text-right">
 
                                                 <p className="font-bold">
@@ -224,7 +222,7 @@ export default function Cart() {
 
                     </div>
 
-                    {/* Résumé */}
+                    {}
                     <Card className="h-fit">
 
                         <CardHeader>
@@ -283,7 +281,7 @@ export default function Cart() {
 
                             </div>
 
-                            {/* Checkout */}
+                            {}
                             <Button
                                 asChild
                                 className="mt-6 w-full"
@@ -297,7 +295,7 @@ export default function Cart() {
                                 </Link>
                             </Button>
 
-                            {/* Continuer les achats */}
+                            {}
                             <Button
                                 variant="outline"
                                 asChild

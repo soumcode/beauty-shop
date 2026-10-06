@@ -10,9 +10,7 @@ use Inertia\Inertia;
 
 class DeliveryController extends Controller
 {
-    /**
-     * Liste des livraisons du livreur connecté.
-     */
+    
     public function index()
     {
         $deliveries = Delivery::with([
@@ -47,18 +45,13 @@ class DeliveryController extends Controller
         );
     }
 
-    /**
-     * Détail d'une livraison.
-     */
+    
     public function show(
         Delivery $delivery
     ) {
 
         $this->authorize('view', $delivery);
-        /*
-         * Sécurité :
-         * un livreur ne peut voir que ses livraisons.
-         */
+        
         abort_unless(
             $delivery->driver_id ===
             auth()->id(),
@@ -93,9 +86,7 @@ class DeliveryController extends Controller
         );
     }
 
-    /**
-     * Modifier l'état d'une livraison.
-     */
+    
     public function updateStatus(Request $request, Delivery $delivery)
     {
         $this->authorize('updateStatus', $delivery);
@@ -149,21 +140,13 @@ class DeliveryController extends Controller
             $delivery,
             $newDeliveryStatus
         ) {
-            /*
-            |--------------------------------------------------------------------------
-            | Statut actuel de la commande
-            |--------------------------------------------------------------------------
-            */
+            
 
             $order = $delivery->order;
 
             $oldOrderStatus = $order->status;
 
-            /*
-            |--------------------------------------------------------------------------
-            | Mise à jour de la livraison
-            |--------------------------------------------------------------------------
-            */
+            
 
             $delivery->status = $newDeliveryStatus;
 
@@ -172,7 +155,7 @@ class DeliveryController extends Controller
             }
 
             if ($newDeliveryStatus === 'out_for_delivery') {
-                // Aucun timestamp supplémentaire pour le moment.
+                
             }
 
             if ($newDeliveryStatus === 'delivered') {
@@ -181,11 +164,7 @@ class DeliveryController extends Controller
 
             $delivery->save();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Mise à jour de la commande
-            |--------------------------------------------------------------------------
-            */
+            
 
             $newOrderStatus = match ($newDeliveryStatus) {
                 'picked_up' => 'assigned',
@@ -199,15 +178,7 @@ class DeliveryController extends Controller
                 'status' => $newOrderStatus,
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Historique de la commande
-            |--------------------------------------------------------------------------
-            |
-            | On enregistre uniquement si le statut de la commande
-            | a réellement changé.
-            |
-            */
+            
 
             if ($oldOrderStatus !== $newOrderStatus) {
                 OrderStatusHistory::create([

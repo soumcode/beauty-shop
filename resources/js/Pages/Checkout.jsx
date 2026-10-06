@@ -190,7 +190,7 @@ export default function Checkout({
             <Head title="Passer la commande" />
 
             <div className="mx-auto max-w-6xl space-y-8 p-6">
-                {/* Retour */}
+                {}
                 <Button
                     asChild
                     variant="ghost"
@@ -216,9 +216,9 @@ export default function Checkout({
                     onSubmit={submit}
                     className="grid gap-8 lg:grid-cols-3"
                 >
-                    {/* Formulaire */}
+                    {}
                     <div className="space-y-6 lg:col-span-2">
-                        {/* Adresses enregistrées */}
+                        {}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -295,7 +295,7 @@ export default function Checkout({
                                     </div>
                                 )}
 
-                                {/* Nom */}
+                                {}
                                 <div className="space-y-2">
                                     <Label htmlFor="name">
                                         Nom complet
@@ -320,7 +320,7 @@ export default function Checkout({
                                     )}
                                 </div>
 
-                                {/* Téléphone */}
+                                {}
                                 <div className="space-y-2">
                                     <Label htmlFor="phone">
                                         Téléphone
@@ -346,7 +346,7 @@ export default function Checkout({
                                     )}
                                 </div>
 
-                                {/* Ville */}
+                                {}
                                 <div className="space-y-2">
                                     <Label htmlFor="city">
                                         Ville
@@ -372,7 +372,7 @@ export default function Checkout({
                                     )}
                                 </div>
 
-                                {/* Commune */}
+                                {}
                                 <div className="space-y-2">
                                     <Label htmlFor="commune">
                                         Commune
@@ -398,7 +398,7 @@ export default function Checkout({
                                     )}
                                 </div>
 
-                                {/* Quartier */}
+                                {}
                                 <div className="space-y-2">
                                     <Label htmlFor="quartier">
                                         Quartier
@@ -424,7 +424,7 @@ export default function Checkout({
                                     )}
                                 </div>
 
-                                {/* Adresse */}
+                                {}
                                 <div className="space-y-2">
                                     <Label htmlFor="address">
                                         Adresse complète
@@ -464,7 +464,7 @@ export default function Checkout({
                             </CardContent>
                         </Card>
 
-                        {/* Paiement */}
+                        {}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -474,7 +474,7 @@ export default function Checkout({
                             </CardHeader>
 
                             <CardContent className="space-y-3">
-                                {/* Paiement à la livraison */}
+                                {}
                                 <label
                                     htmlFor="cash_on_delivery"
                                     className={`flex cursor-pointer items-start gap-4 rounded-lg border p-4 transition ${
@@ -518,7 +518,7 @@ export default function Checkout({
                                     </div>
                                 </label>
 
-                                {/* Paiement en ligne */}
+                                {}
                                 <label
                                     htmlFor="online"
                                     className="flex cursor-not-allowed items-start gap-4 rounded-lg border p-4 opacity-60"
@@ -578,7 +578,7 @@ export default function Checkout({
                         </Button>
                     </div>
 
-                    {/* Résumé */}
+                    {}
                     <div>
                         <Card className="sticky top-24">
                             <CardHeader>

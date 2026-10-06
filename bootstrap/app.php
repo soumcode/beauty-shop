@@ -17,20 +17,20 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
-        // 1) Middlewares ajoutés au groupe "web" (indispensables pour Inertia).
+        
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // 2) Alias des middlewares utilisés dans routes/web.php.
+        
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'livreur' => LivreurMiddleware::class,
         ]);
 
-        // 3) Le webhook GeniusPay est appelé par GeniusPay,
-        //    il ne possède pas le token CSRF de Laravel.
+        
+        
         $middleware->validateCsrfTokens(
             except: [
                 '/',

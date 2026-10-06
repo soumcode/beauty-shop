@@ -42,11 +42,7 @@ return new class extends Migration
                 'failed',
             ])->default('pending');
 
-            /*
-             * Adresse enregistrée au moment de la commande.
-             * Ces informations ne doivent plus changer
-             * lorsque le client modifie son adresse plus tard.
-             */
+            
             $table->string('delivery_name');
             $table->string('delivery_phone', 30);
             $table->string('delivery_city');

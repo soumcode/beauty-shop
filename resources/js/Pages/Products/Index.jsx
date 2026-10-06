@@ -18,7 +18,7 @@ export default function Index({
     return (
         <div className="min-h-screen bg-muted/30">
 
-            {/* En-tête */}
+            {}
             <div className="border-b bg-background">
                 <div className="mx-auto max-w-7xl px-6 py-6">
 
@@ -35,7 +35,7 @@ export default function Index({
 
             <div className="mx-auto max-w-7xl px-6 py-8">
 
-                {/* Recherche */}
+                {}
                 <Card className="mb-8">
                     <CardContent className="pt-6">
 
@@ -85,7 +85,7 @@ export default function Index({
                     </CardContent>
                 </Card>
 
-                {/* Produits */}
+                {}
                 {products.data.length > 0 ? (
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 
@@ -96,7 +96,7 @@ export default function Index({
                                     className="overflow-hidden transition hover:shadow-lg"
                                 >
 
-                                    {/* Image */}
+                                    {}
                                     <div className="aspect-square bg-muted">
 
                                         {product.image ? (
@@ -186,7 +186,7 @@ export default function Index({
                     </Card>
                 )}
 
-                {/* Pagination */}
+                {}
                 <div className="mt-8 flex flex-wrap justify-center gap-2">
 
                     {products.links.map(

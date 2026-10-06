@@ -107,11 +107,7 @@ class CheckoutController extends Controller
 
         $user = auth()->user();
 
-        /*
-         * Si une adresse enregistrée est sélectionnée,
-         * on récupère ses vraies informations depuis la
-         * base de données.
-         */
+        
         if ($validated['address_id'] ?? null) {
             $savedAddress = $user->addresses()
                 ->findOrFail($validated['address_id']);
@@ -124,10 +120,7 @@ class CheckoutController extends Controller
             $validated['address'] = $savedAddress->address;
         }
 
-        /*
-         * On crée d'abord la commande et ses lignes
-         * dans une transaction locale.
-         */
+        
         $order = DB::transaction(function () use (
             $validated,
             $user
@@ -234,10 +227,7 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        /*
-         * Paiement à la livraison :
-         * on garde le fonctionnement normal.
-         */
+        
         if ($validated['payment_method'] === 'cash_on_delivery') {
             return redirect()->route(
                 'orders.confirmation',
@@ -245,11 +235,7 @@ class CheckoutController extends Controller
             );
         }
 
-        /*
-         * Paiement en ligne :
-         * on crée le paiement GeniusPay après
-         * la création de la commande.
-         */
+        
         try {
             $geniusPayment =
                 $geniusPay->createPayment($order);
@@ -272,11 +258,7 @@ class CheckoutController extends Controller
                 $geniusPayment['checkout_url']
             );
         } catch (RuntimeException $exception) {
-            /*
-             * Si GeniusPay ne répond pas correctement,
-             * on annule la commande et on restaure
-             * le stock.
-             */
+            
             DB::transaction(function () use ($order) {
                 $order->load('items');
 

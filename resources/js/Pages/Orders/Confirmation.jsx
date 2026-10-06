@@ -38,7 +38,7 @@ export default function Confirmation({ order }) {
 
                     <CardContent className="space-y-8">
 
-                        {/* Statut */}
+                        {}
                         <div className="rounded-lg border p-5">
 
                             <p className="text-sm text-muted-foreground">
@@ -51,7 +51,7 @@ export default function Confirmation({ order }) {
 
                         </div>
 
-                        {/* Produits */}
+                        {}
                         <div>
 
                             <h2 className="mb-4 text-xl font-semibold">
@@ -105,7 +105,7 @@ export default function Confirmation({ order }) {
 
                         </div>
 
-                        {/* Livraison */}
+                        {}
                         <div>
 
                             <h2 className="mb-4 text-xl font-semibold">
@@ -154,7 +154,7 @@ export default function Confirmation({ order }) {
 
                         </div>
 
-                        {/* Total */}
+                        {}
                         <div className="rounded-lg border p-5">
 
                             <div className="flex justify-between">
@@ -212,7 +212,7 @@ export default function Confirmation({ order }) {
 
                         </div>
 
-                        {/* Boutons */}
+                        {}
                         <div className="flex flex-col gap-3 sm:flex-row">
 
                             <Button asChild>
