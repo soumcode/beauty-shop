@@ -52,6 +52,7 @@ class CheckoutTest extends TestCase
                 'commune' => 'Cocody',
                 'quartier' => 'Riviera',
                 'address' => 'Adresse de test',
+                'payment_method' => 'cash_on_delivery',
             ]);
 
         $response->assertRedirect();
@@ -120,6 +121,7 @@ class CheckoutTest extends TestCase
                 'commune' => 'Cocody',
                 'quartier' => 'Riviera',
                 'address' => 'Adresse de test',
+                'payment_method' => 'cash_on_delivery',
             ]);
 
         $response->assertRedirect();
@@ -177,6 +179,7 @@ class CheckoutTest extends TestCase
                 'commune' => 'Cocody',
                 'quartier' => 'Riviera',
                 'address' => 'Adresse de test',
+                'payment_method' => 'cash_on_delivery',
             ]);
 
         $response->assertStatus(422);
@@ -231,6 +234,7 @@ class CheckoutTest extends TestCase
                 'commune' => 'Cocody',
                 'quartier' => 'Riviera',
                 'address' => 'Adresse de test',
+                'payment_method' => 'cash_on_delivery',
             ]);
 
         $checkoutResponse->assertRedirect();

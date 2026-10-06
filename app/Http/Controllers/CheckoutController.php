@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
+use App\Models\Payment;
 use App\Models\Product;
+use App\Services\GeniusPayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use RuntimeException;
 
 class CheckoutController extends Controller
 {
@@ -30,8 +33,10 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(Request $request)
-    {
+    public function store(
+        Request $request,
+        GeniusPayService $geniusPay
+    ) {
         $validated = $request->validate([
             'address_id' => [
                 'nullable',
@@ -102,6 +107,11 @@ class CheckoutController extends Controller
 
         $user = auth()->user();
 
+        /*
+         * Si une adresse enregistrée est sélectionnée,
+         * on récupère ses vraies informations depuis la
+         * base de données.
+         */
         if ($validated['address_id'] ?? null) {
             $savedAddress = $user->addresses()
                 ->findOrFail($validated['address_id']);
@@ -114,7 +124,14 @@ class CheckoutController extends Controller
             $validated['address'] = $savedAddress->address;
         }
 
-        return DB::transaction(function () use ($validated, $user) {
+        /*
+         * On crée d'abord la commande et ses lignes
+         * dans une transaction locale.
+         */
+        $order = DB::transaction(function () use (
+            $validated,
+            $user
+        ) {
             $productIds = collect($validated['items'])
                 ->pluck('id')
                 ->all();
@@ -144,38 +161,50 @@ class CheckoutController extends Controller
                     );
                 }
 
-                $subtotal += (float) $product->price * $item['quantity'];
+                $subtotal +=
+                    (float) $product->price *
+                    $item['quantity'];
             }
 
             $deliveryFee = 2000;
+
             $total = $subtotal + $deliveryFee;
 
             $order = Order::create([
                 'user_id' => $user->id,
+
                 'status' => 'pending',
+
                 'subtotal' => $subtotal,
+
                 'delivery_fee' => $deliveryFee,
+
                 'total' => $total,
 
-                /*
-                 * Pour le moment, le paiement réel en ligne
-                 * n'est pas encore connecté à CinetPay.
-                 */
-                'payment_method' => 'cash_on_delivery',
+                'payment_method' => $validated['payment_method'],
+
                 'payment_status' => 'pending',
 
                 'delivery_name' => $validated['name'],
+
                 'delivery_phone' => $validated['phone'],
+
                 'delivery_city' => $validated['city'],
+
                 'delivery_commune' => $validated['commune'],
+
                 'delivery_quartier' => $validated['quartier'],
+
                 'delivery_address' => $validated['address'],
             ]);
 
             OrderStatusHistory::create([
                 'order_id' => $order->id,
+
                 'status' => 'pending',
+
                 'changed_by' => $user->id,
+
                 'comment' => 'Commande créée.',
             ]);
 
@@ -183,12 +212,16 @@ class CheckoutController extends Controller
                 $product = $products->get($item['id']);
 
                 $lineTotal =
-                    (float) $product->price * $item['quantity'];
+                    (float) $product->price *
+                    $item['quantity'];
 
                 $order->items()->create([
                     'product_id' => $product->id,
+
                     'quantity' => $item['quantity'],
+
                     'unit_price' => $product->price,
+
                     'total' => $lineTotal,
                 ]);
 
@@ -198,11 +231,88 @@ class CheckoutController extends Controller
                 );
             }
 
+            return $order;
+        });
+
+        /*
+         * Paiement à la livraison :
+         * on garde le fonctionnement normal.
+         */
+        if ($validated['payment_method'] === 'cash_on_delivery') {
             return redirect()->route(
                 'orders.confirmation',
                 $order
             );
-        });
+        }
+
+        /*
+         * Paiement en ligne :
+         * on crée le paiement GeniusPay après
+         * la création de la commande.
+         */
+        try {
+            $geniusPayment =
+                $geniusPay->createPayment($order);
+
+            Payment::create([
+                'order_id' => $order->id,
+
+                'transaction_id' => $geniusPayment['reference'],
+
+                'amount' => (int) $order->total,
+
+                'currency' => 'XOF',
+
+                'status' => 'pending',
+
+                'payment_url' => $geniusPayment['checkout_url'],
+            ]);
+
+            return redirect(
+                $geniusPayment['checkout_url']
+            );
+        } catch (RuntimeException $exception) {
+            /*
+             * Si GeniusPay ne répond pas correctement,
+             * on annule la commande et on restaure
+             * le stock.
+             */
+            DB::transaction(function () use ($order) {
+                $order->load('items');
+
+                foreach ($order->items as $item) {
+                    $product = Product::withTrashed()
+                        ->lockForUpdate()
+                        ->find($item->product_id);
+
+                    if ($product) {
+                        $product->increment(
+                            'stock',
+                            $item->quantity
+                        );
+                    }
+                }
+
+                $order->update([
+                    'status' => 'cancelled',
+                    'payment_status' => 'failed',
+                ]);
+
+                OrderStatusHistory::create([
+                    'order_id' => $order->id,
+
+                    'status' => 'cancelled',
+
+                    'changed_by' => auth()->id(),
+
+                    'comment' => 'Commande annulée : impossible d’initialiser le paiement en ligne.',
+                ]);
+            });
+
+            return back()->withErrors([
+                'payment' => 'Le paiement en ligne n’a pas pu être initialisé. Veuillez réessayer.',
+            ]);
+        }
     }
 
     public function confirmation(Order $order)
@@ -214,6 +324,7 @@ class CheckoutController extends Controller
 
         $order->load([
             'items.product',
+            'payment',
         ]);
 
         return Inertia::render(

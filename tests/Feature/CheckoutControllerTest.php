@@ -31,6 +31,7 @@ test('client can confirm an order and is redirected to its confirmation page', f
             'commune' => 'Cocody',
             'quartier' => 'Riviera',
             'address' => 'Près de la pharmacie',
+            'payment_method' => 'cash_on_delivery',
             'items' => [
                 ['id' => $product->id, 'quantity' => 1],
             ],

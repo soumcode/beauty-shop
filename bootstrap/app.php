@@ -18,21 +18,30 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
 
         // 1) Middlewares ajoutés au groupe "web" (indispensables pour Inertia).
-        //    Sans HandleInertiaRequests, "auth.user" n'est pas envoyé à React
-        //    et la page reste blanche.
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // 2) Alias du middleware admin (utilisé dans routes/web.php : ['auth', 'admin']).
+        // 2) Alias des middlewares utilisés dans routes/web.php.
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'livreur' => LivreurMiddleware::class,
         ]);
+
+        // 3) Le webhook GeniusPay est appelé par GeniusPay,
+        //    il ne possède pas le token CSRF de Laravel.
+        $middleware->validateCsrfTokens(
+            except: [
+                '/',
+                'webhook/geniuspay',
+                'webhooks/geniuspay',
+            ]
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
-    })->create();
+    })
+    ->create();

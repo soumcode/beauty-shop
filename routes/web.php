@@ -11,6 +11,7 @@ use App\Http\Controllers\Client\DashboardController as ClientDashboardController
 use App\Http\Controllers\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Client\ProfileController as ClientProfileController;
 use App\Http\Controllers\DeliveryController;
+use App\Http\Controllers\GeniusPayWebhookController;
 use App\Http\Controllers\Livreur\DashboardController as LivreurDashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController as AuthProfileController;
@@ -58,6 +59,21 @@ Route::get('/panier', function () {
 | Routes authentifiées
 |--------------------------------------------------------------------------
 */
+
+Route::post(
+    '/webhooks/geniuspay',
+    [GeniusPayWebhookController::class, 'handle']
+)->name('geniuspay.webhook');
+
+Route::post(
+    '/webhook/geniuspay',
+    [GeniusPayWebhookController::class, 'handle']
+);
+
+Route::post(
+    '/',
+    [GeniusPayWebhookController::class, 'handle']
+);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [

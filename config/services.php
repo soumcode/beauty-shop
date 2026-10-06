@@ -34,5 +34,23 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'geniuspay' => [
+        'api_key' => env('GENIUSPAY_API_KEY'),
+
+        'api_secret' => env('GENIUSPAY_API_SECRET'),
+
+        'webhook_secret' => env('GENIUSPAY_WEBHOOK_SECRET'),
+
+        'base_url' => env(
+            'GENIUSPAY_BASE_URL',
+            'https://geniuspay.ci/api/v1/merchant'
+        ),
+
+        'success_url' => env('GENIUSPAY_SUCCESS_URL'),
+
+        'error_url' => env('GENIUSPAY_ERROR_URL'),
+
+        'webhook_url' => env('GENIUSPAY_WEBHOOK_URL'),
+    ],
 
 ];
