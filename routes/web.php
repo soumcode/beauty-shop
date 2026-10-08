@@ -5,26 +5,27 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DriverController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Client\AddressController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
+use App\Http\Controllers\Client\FavoriteController;
+use App\Http\Controllers\Client\NotificationController;
 use App\Http\Controllers\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Client\ProfileController as ClientProfileController;
-use App\Http\Controllers\DeliveryController;
+use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
+use App\Http\Controllers\Client\ReviewController;
 use App\Http\Controllers\GeniusPayWebhookController;
 use App\Http\Controllers\Livreur\DashboardController as LivreurDashboardController;
+use App\Http\Controllers\Livreur\DeliveryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController as AuthProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-
-
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
-
-
 
 Route::get('/produits', [
     ProductController::class,
@@ -36,13 +37,8 @@ Route::get('/produits/{product:slug}', [
     'show',
 ])->name('products.show');
 
-
-
-Route::get('/panier', function () {
-    return Inertia::render('Cart');
-})->name('cart');
-
-
+Route::get('/panier', fn () => Inertia::render('Cart'))
+    ->name('cart.index');
 
 Route::post(
     '/webhooks/geniuspay',
@@ -54,16 +50,33 @@ Route::post(
     [GeniusPayWebhookController::class, 'handle']
 );
 
-Route::post(
-    '/',
-    [GeniusPayWebhookController::class, 'handle']
-);
+Route::get('/paiement/succes', function () {
+    return redirect()->route('client.orders.index')
+        ->with('success', 'Paiement effectué avec succès.');
+})->name('payment.success');
+
+Route::get('/paiement/echec', function () {
+    return redirect()->route('client.orders.index')
+        ->withErrors([
+            'payment' => 'Le paiement n’a pas été effectué.',
+        ]);
+})->name('payment.error');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [
         AuthProfileController::class,
         'edit',
     ])->name('profile.edit');
+
+    Route::post(
+        '/produits/{product}/avis',
+        [ReviewController::class, 'store']
+    )->name('client.reviews.store');
+
+    Route::delete(
+        '/avis/{review}',
+        [ReviewController::class, 'destroy']
+    )->name('client.reviews.destroy');
 
     Route::patch('/profile', [
         AuthProfileController::class,
@@ -74,6 +87,21 @@ Route::middleware('auth')->group(function () {
         AuthProfileController::class,
         'destroy',
     ])->name('profile.destroy');
+
+    Route::get(
+        '/mes-notifications',
+        [NotificationController::class, 'index']
+    )->name('client.notifications.index');
+
+    Route::patch(
+        '/mes-notifications/{notification}/read',
+        [NotificationController::class, 'markAsRead']
+    )->name('client.notifications.read');
+
+    Route::patch(
+        '/mes-notifications/read-all',
+        [NotificationController::class, 'markAllAsRead']
+    )->name('client.notifications.read-all');
 
     Route::get('/dashboard', function () {
         $role = auth()->user()->role;
@@ -118,6 +146,11 @@ Route::middleware('auth')->group(function () {
         CheckoutController::class,
         'create',
     ])->name('checkout');
+
+    Route::get(
+        '/promotion/check',
+        [ClientPromotionController::class, 'check']
+    )->name('client.promotions.check');
 
     Route::post('/checkout', [
         CheckoutController::class,
@@ -168,9 +201,25 @@ Route::middleware('auth')->group(function () {
         '/mes-commandes/{order}/annuler',
         [ClientOrderController::class, 'cancel']
     )->name('client.orders.cancel');
+
+    Route::get(
+        '/mes-favoris',
+        [FavoriteController::class, 'index']
+    )->name('client.favorites.index');
+
+    Route::post(
+        '/produits/{product}/favori',
+        [FavoriteController::class, 'store']
+    )->name('client.favorites.store');
+
+    Route::delete(
+        '/produits/{product}/favori',
+        [FavoriteController::class, 'destroy']
+    )->name('client.favorites.destroy');
+
 });
 
-
+/* Route administrateur */
 
 Route::middleware([
     'auth',
@@ -179,17 +228,32 @@ Route::middleware([
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        
+
         Route::resource('categories', CategoryController::class)->except([
             'show',
         ]);
 
-        
         Route::resource('products', AdminProductController::class)->except([
             'show',
         ]);
 
-        
+        Route::resource(
+            'promotions',
+            PromotionController::class
+        )->except([
+            'show',
+        ]);
+
+        Route::get('/stock', [
+            AdminProductController::class,
+            'stock',
+        ])->name('stock.index');
+
+        Route::patch(
+            '/promotions/{promotion}/toggle',
+            [PromotionController::class, 'toggle']
+        )->name('promotions.toggle');
+
         Route::get('/commandes', [
             OrderController::class,
             'index',
@@ -210,7 +274,11 @@ Route::middleware([
             'assignDriver',
         ])->name('orders.assign-driver');
 
-        
+        Route::post('/commandes/affecter-livreur', [
+            OrderController::class,
+            'assignDriverBatch',
+        ])->name('orders.assign-driver-batch');
+
         Route::resource('drivers', DriverController::class)->except([
             'show',
             'destroy',
@@ -219,8 +287,6 @@ Route::middleware([
         Route::get('/', [DashboardController::class, 'index'])
             ->name('dashboard');
     });
-
-
 
 Route::middleware(['auth', 'livreur'])
     ->prefix('livreur')
@@ -246,7 +312,5 @@ Route::middleware(['auth', 'livreur'])
             'updateStatus',
         ])->name('deliveries.update-status');
     });
-
-
 
 require __DIR__.'/auth.php';

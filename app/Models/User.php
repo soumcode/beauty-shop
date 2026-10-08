@@ -31,8 +31,6 @@ class User extends Authenticatable
         ];
     }
 
-    
-
     public function addresses()
     {
         return $this->hasMany(
@@ -61,5 +59,15 @@ class User extends Authenticatable
             OrderStatusHistory::class,
             'changed_by'
         );
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 }

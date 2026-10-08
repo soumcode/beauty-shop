@@ -7,21 +7,23 @@ use App\Models\User;
 
 class DeliveryPolicy
 {
-    
     public function view(User $user, Delivery $delivery): bool
     {
-        if ($user->role === 'admin') {
+        $role = $user->role ?? 'client';
+
+        if ($role === 'admin') {
             return true;
         }
 
-        return $user->role === 'livreur'
+        return $role === 'livreur'
             && $delivery->driver_id === $user->id;
     }
 
-    
     public function updateStatus(User $user, Delivery $delivery): bool
     {
-        return $user->role === 'livreur'
+        $role = $user->role ?? 'client';
+
+        return $role === 'livreur'
             && $delivery->driver_id === $user->id;
     }
 }

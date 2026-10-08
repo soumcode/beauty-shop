@@ -23,7 +23,36 @@ export function CartProvider({ children }) {
         }
 
         try {
-            return JSON.parse(savedCart)
+            const parsedCart = JSON.parse(savedCart)
+
+            if (!Array.isArray(parsedCart)) {
+                return []
+            }
+
+            return parsedCart
+                .filter((item) => {
+                    return (
+                        item &&
+                        Number(item.id) > 0 &&
+                        Number(item.stock) > 0 &&
+                        Number(item.quantity) > 0
+                    )
+                })
+                .map((item) => {
+                    const stock = Number(item.stock)
+                    const quantity = Math.min(
+                        Number(item.quantity) || 1,
+                        stock
+                    )
+
+                    return {
+                        ...item,
+                        id: Number(item.id),
+                        price: Number(item.price) || 0,
+                        stock,
+                        quantity,
+                    }
+                })
         } catch {
             return []
         }
@@ -37,16 +66,32 @@ export function CartProvider({ children }) {
     }, [cartItems])
 
     const addToCart = (product) => {
+        const stock = Number(product.stock) || 0
+
+        if (stock <= 0) {
+            return false
+        }
+
         setCartItems((currentItems) => {
             const existingItem = currentItems.find(
                 (item) => item.id === product.id
             )
 
             if (existingItem) {
+                if (
+                    existingItem.quantity >= stock
+                ) {
+                    return currentItems
+                }
+
                 return currentItems.map((item) =>
                     item.id === product.id
                         ? {
                               ...item,
+                              price: Number(
+                                  product.price
+                              ),
+                              stock,
                               quantity:
                                   item.quantity + 1,
                           }
@@ -62,11 +107,13 @@ export function CartProvider({ children }) {
                     slug: product.slug,
                     price: Number(product.price),
                     image: product.image,
-                    stock: product.stock,
+                    stock,
                     quantity: 1,
                 },
             ]
         })
+
+        return true
     }
 
     const increaseQuantity = (productId) => {
@@ -76,7 +123,12 @@ export function CartProvider({ children }) {
                     return item
                 }
 
-                if (item.quantity >= item.stock) {
+                const stock = Number(item.stock) || 0
+
+                if (
+                    stock <= 0 ||
+                    item.quantity >= stock
+                ) {
                     return item
                 }
 
@@ -98,7 +150,8 @@ export function CartProvider({ children }) {
 
                     return {
                         ...item,
-                        quantity: item.quantity - 1,
+                        quantity:
+                            item.quantity - 1,
                     }
                 })
                 .filter(
@@ -123,7 +176,8 @@ export function CartProvider({ children }) {
         return cartItems.reduce(
             (total, item) =>
                 total +
-                item.price * item.quantity,
+                Number(item.price) *
+                    Number(item.quantity),
             0
         )
     }
@@ -131,9 +185,22 @@ export function CartProvider({ children }) {
     const getCartCount = () => {
         return cartItems.reduce(
             (total, item) =>
-                total + item.quantity,
+                total + Number(item.quantity),
             0
         )
+    }
+
+    const hasInvalidStock = () => {
+        return cartItems.some((item) => {
+            const stock = Number(item.stock) || 0
+            const quantity =
+                Number(item.quantity) || 0
+
+            return (
+                stock <= 0 ||
+                quantity > stock
+            )
+        })
     }
 
     return (
@@ -147,6 +214,7 @@ export function CartProvider({ children }) {
                 clearCart,
                 getCartTotal,
                 getCartCount,
+                hasInvalidStock,
             }}
         >
             {children}

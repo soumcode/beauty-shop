@@ -2,8 +2,6 @@
 
 return [
 
-    
-
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
@@ -33,7 +31,7 @@ return [
 
         'base_url' => env(
             'GENIUSPAY_BASE_URL',
-            'https://geniuspay.ci/api/v1/merchant'
+            'https://geniuspay.ci/api/v1'
         ),
 
         'success_url' => env('GENIUSPAY_SUCCESS_URL'),

@@ -7,8 +7,11 @@ use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -17,6 +20,7 @@ class OrderController extends Controller
     {
         $search = $request->input('search');
         $status = $request->input('status');
+        $zone = $request->input('zone');
 
         $orders = Order::with('user')
             ->when($search, function ($query, $search) {
@@ -31,6 +35,13 @@ class OrderController extends Controller
             ->when($status, function ($query, $status) {
                 $query->where('status', $status);
             })
+            ->when($zone, function ($query, $zone) {
+                $query->where(function ($query) use ($zone) {
+                    $query->where('delivery_city', 'like', "%{$zone}%")
+                        ->orWhere('delivery_commune', 'like', "%{$zone}%")
+                        ->orWhere('delivery_quartier', 'like', "%{$zone}%");
+                });
+            })
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -40,8 +51,10 @@ class OrderController extends Controller
             'filters' => [
                 'search' => $search,
                 'status' => $status,
+                'zone' => $zone,
             ],
             'statusOptions' => $this->statusOptions(),
+            'availableDrivers' => $this->availableDrivers(),
         ]);
     }
 
@@ -56,28 +69,13 @@ class OrderController extends Controller
             'statusHistories.changedBy',
         ]);
 
-        $drivers = User::where('role', 'livreur')
-            ->whereDoesntHave('deliveries', function ($query) {
-                $query->whereIn('status', [
-                    'assigned',
-                    'picked_up',
-                    'out_for_delivery',
-                ]);
-            })
-            ->orderBy('name')
-            ->get([
-                'id',
-                'name',
-                'phone',
-            ]);
-
         return Inertia::render('Admin/Orders/Show', [
             'order' => $order,
             'statusOptions' => $this->statusOptions(),
             'nextStatusOptions' => $this->allowedTransitions(
                 $order->status
             ),
-            'drivers' => $drivers,
+            'availableDrivers' => $this->availableDrivers(),
         ]);
     }
 
@@ -89,7 +87,7 @@ class OrderController extends Controller
             'status' => [
                 'required',
                 'string',
-                'in:'.implode(',', $this->statusOptions()),
+                Rule::in(array_keys($this->statusOptions())),
             ],
         ]);
 
@@ -153,52 +151,11 @@ class OrderController extends Controller
             ],
         ]);
 
-        if ($order->status !== 'ready') {
-            return back()->withErrors([
-                'driver_id' => 'Cette commande doit être prête avant d’être affectée à un livreur.',
-            ]);
-        }
-
-        $driver = User::where('id', $validated['driver_id'])
-            ->where('role', 'livreur')
-            ->firstOrFail();
-
-        $hasActiveDelivery = $driver->deliveries()
-            ->whereIn('status', [
-                'assigned',
-                'picked_up',
-                'out_for_delivery',
-            ])
-            ->exists();
-
-        if ($hasActiveDelivery) {
-            return back()->withErrors([
-                'driver_id' => 'Ce livreur possède déjà une livraison en cours.',
-            ]);
-        }
-
-        DB::transaction(function () use ($order, $driver) {
-            $delivery = $order->delivery()->firstOrNew();
-
-            $delivery->driver_id = $driver->id;
-            $delivery->status = 'assigned';
-            $delivery->assigned_at = now();
-            $delivery->picked_up_at = null;
-            $delivery->delivered_at = null;
-            $delivery->notes = null;
-            $delivery->save();
-
-            $order->update([
-                'status' => 'assigned',
-            ]);
-
-            OrderStatusHistory::create([
-                'order_id' => $order->id,
-                'status' => 'assigned',
-                'changed_by' => auth()->id(),
-                'comment' => 'Livreur affecté à la commande.',
-            ]);
-        });
+        $this->assignOrdersToDriver(
+            [$order->id],
+            $validated['driver_id'],
+            'driver_id'
+        );
 
         return back()->with(
             'success',
@@ -206,17 +163,128 @@ class OrderController extends Controller
         );
     }
 
+    public function assignDriverBatch(Request $request)
+    {
+        $validated = $request->validate([
+            'driver_id' => [
+                'required',
+                'integer',
+                'exists:users,id',
+            ],
+            'order_ids' => [
+                'required',
+                'array',
+                'min:2',
+            ],
+            'order_ids.*' => [
+                'required',
+                'integer',
+                'distinct',
+                'exists:orders,id',
+            ],
+        ]);
+
+        $this->assignOrdersToDriver(
+            $validated['order_ids'],
+            $validated['driver_id']
+        );
+
+        return back()->with(
+            'success',
+            'Commandes affectées au livreur.'
+        );
+    }
+
+    /**
+     * @param  array<int, int>  $orderIds
+     */
+    private function assignOrdersToDriver(
+        array $orderIds,
+        int $driverId,
+        string $orderErrorField = 'order_ids'
+    ): void {
+        DB::transaction(function () use ($orderIds, $driverId, $orderErrorField) {
+            $driver = User::query()
+                ->lockForUpdate()
+                ->findOrFail($driverId);
+
+            if ($driver->role !== 'livreur') {
+                throw ValidationException::withMessages([
+                    'driver_id' => 'Veuillez sélectionner un livreur valide.',
+                ]);
+            }
+
+            $orders = Order::query()
+                ->whereKey($orderIds)
+                ->lockForUpdate()
+                ->get();
+
+            if ($orders->count() !== count($orderIds)) {
+                abort(404);
+            }
+
+            foreach ($orders as $order) {
+                $this->authorize('assignDriver', $order);
+
+                if ($order->status !== 'ready') {
+                    $message = count($orderIds) === 1
+                        ? 'Cette commande doit être prête avant d’être affectée à un livreur.'
+                        : 'Toutes les commandes sélectionnées doivent être prêtes avant leur affectation.';
+
+                    throw ValidationException::withMessages([
+                        $orderErrorField => $message,
+                    ]);
+                }
+
+                $delivery = $order->delivery()->firstOrNew();
+                $delivery->driver_id = $driver->id;
+                $delivery->status = 'assigned';
+                $delivery->assigned_at = now();
+                $delivery->picked_up_at = null;
+                $delivery->delivered_at = null;
+                $delivery->notes = null;
+                $delivery->save();
+
+                $order->update([
+                    'status' => 'assigned',
+                ]);
+
+                OrderStatusHistory::create([
+                    'order_id' => $order->id,
+                    'status' => 'assigned',
+                    'changed_by' => auth()->id(),
+                    'comment' => 'Livreur affecté à la commande.',
+                ]);
+            }
+        });
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    private function availableDrivers(): Collection
+    {
+        return User::query()
+            ->where('role', 'livreur')
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+                'phone',
+            ]);
+    }
+
     private function statusOptions(): array
     {
         return [
-            'pending',
-            'confirmed',
-            'preparing',
-            'ready',
-            'assigned',
-            'out_for_delivery',
-            'delivered',
-            'cancelled',
+            'pending' => 'En attente',
+            'confirmed' => 'Confirmée',
+            'preparing' => 'En préparation',
+            'ready' => 'Prête',
+            'assigned' => 'Affectée à un livreur',
+            'out_for_delivery' => 'En cours de livraison',
+            'delivered' => 'Livrée',
+            'cancelled' => 'Annulée',
         ];
     }
 

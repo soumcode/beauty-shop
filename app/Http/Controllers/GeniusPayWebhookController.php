@@ -12,7 +12,7 @@ class GeniusPayWebhookController extends Controller
 {
     public function handle(Request $request)
     {
-        
+
         $signature = $request->header(
             'X-Webhook-Signature'
         );
@@ -25,14 +25,12 @@ class GeniusPayWebhookController extends Controller
             'X-Webhook-Event'
         );
 
-        
         if (! $signature || ! $timestamp) {
             return response()->json([
                 'message' => 'Signature webhook manquante.',
             ], 401);
         }
 
-        
         if (
             ! is_numeric($timestamp) ||
             abs(time() - (int) $timestamp) > 300
@@ -42,10 +40,8 @@ class GeniusPayWebhookController extends Controller
             ], 400);
         }
 
-        
         $rawPayload = $request->getContent();
 
-        
         $signedData =
             $timestamp.'.'.$rawPayload;
 
@@ -55,7 +51,6 @@ class GeniusPayWebhookController extends Controller
             config('services.geniuspay.webhook_secret')
         );
 
-        
         if (
             ! hash_equals(
                 $expectedSignature,
@@ -67,7 +62,6 @@ class GeniusPayWebhookController extends Controller
             ], 401);
         }
 
-        
         $payload = json_decode(
             $rawPayload,
             true
@@ -79,7 +73,6 @@ class GeniusPayWebhookController extends Controller
             ], 400);
         }
 
-        
         $event = $payload['event'] ?? $eventHeader;
 
         if (! $event) {
@@ -88,7 +81,6 @@ class GeniusPayWebhookController extends Controller
             ], 400);
         }
 
-        
         $supportedEvents = [
             'payment.success',
             'payment.failed',
@@ -103,7 +95,6 @@ class GeniusPayWebhookController extends Controller
             ]);
         }
 
-        
         $paymentData = $payload['data'] ?? [];
 
         $reference =
@@ -119,7 +110,6 @@ class GeniusPayWebhookController extends Controller
             ], 400);
         }
 
-        
         $payment = Payment::where(
             'transaction_id',
             $reference
@@ -131,14 +121,12 @@ class GeniusPayWebhookController extends Controller
             ], 404);
         }
 
-        
         if ((string) $payment->order_id !== (string) $orderId) {
             return response()->json([
                 'message' => 'La commande ne correspond pas au paiement.',
             ], 400);
         }
 
-        
         if (
             in_array(
                 $payment->status,
@@ -152,7 +140,6 @@ class GeniusPayWebhookController extends Controller
             ]);
         }
 
-        
         DB::transaction(function () use (
             $payment,
             $event
@@ -183,7 +170,6 @@ class GeniusPayWebhookController extends Controller
             }
         });
 
-        
         return response()->json([
             'success' => true,
         ]);
@@ -208,7 +194,7 @@ class GeniusPayWebhookController extends Controller
         $order,
         string $event
     ): void {
-        
+
         $order->load('items');
 
         foreach ($order->items as $item) {
@@ -219,7 +205,7 @@ class GeniusPayWebhookController extends Controller
             if ($product) {
                 $product->increment(
                     'stock',
-                    $item->quantity
+                    (int) $item->quantity
                 );
             }
         }

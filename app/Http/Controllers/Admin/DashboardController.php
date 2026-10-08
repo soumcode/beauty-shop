@@ -13,17 +13,61 @@ class DashboardController extends Controller
     public function index()
     {
         $statistics = [
+            // Vue générale
             'products' => Product::count(),
 
-            'clients' => User::where('role', 'client')->count(),
+            'clients' => User::where(
+                'role',
+                'client'
+            )->count(),
 
             'orders' => Order::count(),
 
-            'drivers' => User::where('role', 'livreur')->count(),
+            'drivers' => User::where(
+                'role',
+                'livreur'
+            )->count(),
 
-            'pendingOrders' => Order::where('status', 'pending')->count(),
+            // Stock
+            'totalUnitsInStock' => (int) Product::sum(
+                'stock'
+            ),
 
-            'preparingOrders' => Order::where('status', 'preparing')->count(),
+            'lowStockProducts' => Product::whereBetween(
+                'stock',
+                [1, 5]
+            )->count(),
+
+            'outOfStockProducts' => Product::where(
+                'stock',
+                0
+            )->count(),
+
+            // Commandes
+            'pendingOrders' => Order::where(
+                'status',
+                'pending'
+            )->count(),
+
+            'confirmedOrders' => Order::where(
+                'status',
+                'confirmed'
+            )->count(),
+
+            'preparingOrders' => Order::where(
+                'status',
+                'preparing'
+            )->count(),
+
+            'readyOrders' => Order::where(
+                'status',
+                'ready'
+            )->count(),
+
+            'assignedOrders' => Order::where(
+                'status',
+                'assigned'
+            )->count(),
 
             'outForDeliveryOrders' => Order::where(
                 'status',
@@ -34,16 +78,32 @@ class DashboardController extends Controller
                 'status',
                 'delivered'
             )->count(),
+
+            'cancelledOrders' => Order::where(
+                'status',
+                'cancelled'
+            )->count(),
+
+            // Montant des commandes réellement livrées
+            'deliveredAmount' => (float) Order::where(
+                'status',
+                'delivered'
+            )->sum('total'),
         ];
 
-        $recentOrders = Order::with('user')
+        $recentOrders = Order::with([
+            'user',
+        ])
             ->latest()
-            ->take(5)
+            ->take(8)
             ->get();
 
-        return Inertia::render('Admin/Dashboard', [
-            'statistics' => $statistics,
-            'recentOrders' => $recentOrders,
-        ]);
+        return Inertia::render(
+            'Admin/Dashboard',
+            [
+                'statistics' => $statistics,
+                'recentOrders' => $recentOrders,
+            ]
+        );
     }
 }

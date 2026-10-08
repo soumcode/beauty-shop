@@ -8,7 +8,6 @@ use RuntimeException;
 
 class GeniusPayService
 {
-    
     public function createPayment(Order $order): array
     {
         $response = Http::withHeaders([
@@ -25,6 +24,8 @@ class GeniusPayService
 
                     'currency' => 'XOF',
 
+                    'payment_method' => $order->payment_provider,
+
                     'description' => "Commande Beauty Shop #{$order->id}",
 
                     'customer' => [
@@ -37,9 +38,7 @@ class GeniusPayService
                         'country' => 'CI',
                     ],
 
-                    'success_url' => config('services.geniuspay.success_url'),
-
-                    'error_url' => config('services.geniuspay.error_url'),
+                    'return_url' => config('services.geniuspay.success_url'),
 
                     'metadata' => [
                         'order_id' => (string) $order->id,
@@ -49,7 +48,6 @@ class GeniusPayService
                 ]
             );
 
-        
         if ($response->failed()) {
             throw new RuntimeException(
                 'Impossible de contacter GeniusPay.'
@@ -58,11 +56,14 @@ class GeniusPayService
 
         $data = $response->json();
 
-        
+        $paymentUrl = $data['data']['checkout_url']
+            ?? $data['data']['payment_url']
+            ?? null;
+
         if (
             ! ($data['success'] ?? false) ||
             empty($data['data']['reference']) ||
-            empty($data['data']['checkout_url'])
+            empty($paymentUrl)
         ) {
             throw new RuntimeException(
                 $data['message'] ??
@@ -84,10 +85,9 @@ class GeniusPayService
             'status' => $data['data']['status'] ??
                 'pending',
 
-            'checkout_url' => $data['data']['checkout_url'],
+            'checkout_url' => $paymentUrl,
 
-            'payment_url' => $data['data']['payment_url'] ??
-                $data['data']['checkout_url'],
+            'payment_url' => $paymentUrl,
 
             'environment' => $data['data']['environment'] ??
                 null,
@@ -100,7 +100,6 @@ class GeniusPayService
         ];
     }
 
-    
     public function getPayment(string $reference): array
     {
         $response = Http::withHeaders([

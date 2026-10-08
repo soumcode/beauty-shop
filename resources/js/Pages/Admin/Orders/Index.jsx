@@ -16,6 +16,7 @@ export default function Index({
     orders,
     filters,
     statusOptions,
+    availableDrivers,
 }) {
     const {
         data,
@@ -25,6 +26,19 @@ export default function Index({
     } = useForm({
         search: filters.search ?? '',
         status: filters.status ?? '',
+        zone: filters.zone ?? '',
+    })
+
+    const {
+        data: assignmentData,
+        setData: setAssignmentData,
+        reset: resetAssignment,
+        post: assignOrders,
+        processing: assignmentProcessing,
+        errors: assignmentErrors,
+    } = useForm({
+        driver_id: '',
+        order_ids: [],
     })
 
     const submitSearch = (e) => {
@@ -34,6 +48,23 @@ export default function Index({
             preserveState: true,
             replace: true,
         })
+    }
+
+    const submitAssignment = (e) => {
+        e.preventDefault()
+
+        assignOrders(route('admin.orders.assign-driver-batch'), {
+            preserveScroll: true,
+            onSuccess: () => resetAssignment(),
+        })
+    }
+
+    const toggleOrderSelection = (orderId) => {
+        const selectedOrderIds = assignmentData.order_ids.includes(orderId)
+            ? assignmentData.order_ids.filter((id) => id !== orderId)
+            : [...assignmentData.order_ids, orderId]
+
+        setAssignmentData('order_ids', selectedOrderIds)
     }
 
     const getStatusVariant = (status) => {
@@ -77,7 +108,7 @@ export default function Index({
 
                         <form
                             onSubmit={submitSearch}
-                            className="grid gap-4 md:grid-cols-3"
+                            className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
                         >
 
                             <Input
@@ -86,6 +117,17 @@ export default function Index({
                                 onChange={(e) =>
                                     setData(
                                         'search',
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                            <Input
+                                placeholder="Commune ou quartier (ex. Adjamé)..."
+                                value={data.zone}
+                                onChange={(e) =>
+                                    setData(
+                                        'zone',
                                         e.target.value
                                     )
                                 }
@@ -150,6 +192,63 @@ export default function Index({
 
                     <CardContent>
 
+                        <form
+                            onSubmit={submitAssignment}
+                            className="mb-6 flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-end"
+                        >
+                            <div className="flex-1">
+                                <label
+                                    htmlFor="batch-driver"
+                                    className="mb-2 block text-sm font-medium"
+                                >
+                                    Affecter les commandes sélectionnées
+                                </label>
+                                <select
+                                    id="batch-driver"
+                                    value={assignmentData.driver_id}
+                                    onChange={(e) =>
+                                        setAssignmentData(
+                                            'driver_id',
+                                            e.target.value
+                                        )
+                                    }
+                                    className="h-10 w-full rounded-md border bg-background px-3"
+                                >
+                                    <option value="">
+                                        Choisir un livreur disponible
+                                    </option>
+                                    {availableDrivers.map((driver) => (
+                                        <option key={driver.id} value={driver.id}>
+                                            {driver.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {assignmentErrors.driver_id && (
+                                    <p className="mt-1 text-sm text-destructive">
+                                        {assignmentErrors.driver_id}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <Button
+                                    type="submit"
+                                    disabled={
+                                        assignmentProcessing ||
+                                        assignmentData.order_ids.length < 2 ||
+                                        !assignmentData.driver_id
+                                    }
+                                >
+                                    Affecter {assignmentData.order_ids.length} commande(s)
+                                </Button>
+                                {assignmentErrors.order_ids && (
+                                    <p className="text-sm text-destructive">
+                                        {assignmentErrors.order_ids}
+                                    </p>
+                                )}
+                            </div>
+                        </form>
+
                         <div className="overflow-x-auto">
 
                             <table className="w-full">
@@ -159,11 +258,19 @@ export default function Index({
                                     <tr className="border-b text-left">
 
                                         <th className="p-3">
+                                            Sélection
+                                        </th>
+
+                                        <th className="p-3">
                                             Commande
                                         </th>
 
                                         <th className="p-3">
                                             Client
+                                        </th>
+
+                                        <th className="p-3">
+                                            Zone de livraison
                                         </th>
 
                                         <th className="p-3">
@@ -198,41 +305,54 @@ export default function Index({
                                                     className="border-b"
                                                 >
 
-                                                    <td className="p-3 font-medium">
-                                                        #
-                                                        {
-                                                            order.id
+                                                <td className="p-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        aria-label={`Sélectionner la commande ${order.id}`}
+                                                        checked={assignmentData.order_ids.includes(order.id)}
+                                                        disabled={order.status !== 'ready'}
+                                                        onChange={() =>
+                                                            toggleOrderSelection(order.id)
                                                         }
-                                                    </td>
+                                                    />
+                                                </td>
 
-                                                    <td className="p-3">
-                                                        <div>
-                                                            <p className="font-medium">
-                                                                {
-                                                                    order
-                                                                        .user
-                                                                        ?.name
-                                                                }
-                                                            </p>
+                                                <td className="p-3 font-medium">
+                                                    #{order.id}
+                                                </td>
 
-                                                            <p className="text-sm text-muted-foreground">
-                                                                {
-                                                                    order
-                                                                        .user
-                                                                        ?.email
-                                                                }
-                                                            </p>
-                                                        </div>
-                                                    </td>
+                                                <td className="p-3">
+                                                    <div>
+                                                        <p className="font-medium">
+                                                            {order.user?.name}
+                                                        </p>
 
-                                                    <td className="p-3">
-                                                        {Number(
-                                                            order.total
-                                                        ).toLocaleString(
-                                                            'fr-FR'
-                                                        )}{' '}
-                                                        FCFA
-                                                    </td>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            {order.user?.email}
+                                                        </p>
+                                                    </div>
+                                                </td>
+
+                                                <td className="p-3">
+                                                    <p className="font-medium">
+                                                        {order.delivery_commune ??
+                                                            order.delivery_city ??
+                                                            'Zone inconnue'}
+                                                    </p>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {order.delivery_quartier ??
+                                                            'Quartier non renseigné'}
+                                                    </p>
+                                                </td>
+
+                                                <td className="p-3">
+                                                    {Number(
+                                                        order.total
+                                                    ).toLocaleString(
+                                                        'fr-FR'
+                                                    )}{' '}
+                                                    FCFA
+                                                </td>
 
                                                     <td className="p-3">
 
@@ -285,7 +405,7 @@ export default function Index({
                                     ) : (
                                         <tr>
                                             <td
-                                                colSpan="6"
+                                                colSpan="8"
                                                 className="p-8 text-center text-muted-foreground"
                                             >
                                                 Aucune commande

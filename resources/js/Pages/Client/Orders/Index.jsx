@@ -43,6 +43,13 @@ export default function Index({ orders }) {
 
     const paymentMethodLabels = {
         cash_on_delivery: 'Paiement à la livraison',
+        online: 'Paiement en ligne',
+    }
+
+    const paymentProviderLabels = {
+        wave_ci: 'Wave',
+        orange_money_ci: 'Orange Money',
+        mtn_money_ci: 'MTN Money',
     }
 
     return (
@@ -193,6 +200,15 @@ export default function Index({ orders }) {
                                                             ] ||
                                                                 order.payment_method}
                                                         </p>
+                                                        {order.payment_provider && (
+                                                            <p className="text-sm text-muted-foreground">
+                                                                {paymentProviderLabels[
+                                                                    order
+                                                                        .payment_provider
+                                                                ] ||
+                                                                    order.payment_provider}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 </div>
 

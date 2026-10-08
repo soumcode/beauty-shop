@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link, useForm } from '@inertiajs/react'
 import AppLayout from '@/layouts/AppLayout'
 
@@ -25,8 +26,15 @@ export default function Show({
         processing: statusProcessing,
         errors: statusErrors,
     } = useForm({
-        status: order.status,
+        status: nextStatusOptions[0] ?? order.status,
     })
+
+    useEffect(() => {
+        setStatusData(
+            'status',
+            nextStatusOptions[0] ?? order.status
+        )
+    }, [order.id, order.status, nextStatusOptions[0]])
 
     
     const {
@@ -363,24 +371,13 @@ export default function Show({
                                                 className="w-full rounded-md border bg-background px-3 py-2"
                                             >
 
-                                                {Object.entries(
-                                                    nextStatusOptions
-                                                ).map(
-                                                    ([
-                                                        value,
-                                                        label,
-                                                    ]) => (
+                                                {nextStatusOptions.map(
+                                                    (status) => (
                                                         <option
-                                                            key={
-                                                                value
-                                                            }
-                                                            value={
-                                                                value
-                                                            }
+                                                            key={status}
+                                                            value={status}
                                                         >
-                                                            {
-                                                                label
-                                                            }
+                                                            {statusOptions[status]}
                                                         </option>
                                                     )
                                                 )}
@@ -417,9 +414,7 @@ export default function Show({
                         </Card>
 
                         {}
-                        {order.status ===
-                            'ready' &&
-                            !order.delivery && (
+                        {!order.delivery && (
                                 <Card>
 
                                     <CardHeader>
@@ -430,8 +425,11 @@ export default function Show({
 
                                     <CardContent>
 
-                                        {availableDrivers.length >
-                                        0 ? (
+                                        {order.status !== 'ready' ? (
+                                            <p className="text-sm text-muted-foreground">
+                                                La commande doit être au statut « Prête » avant de pouvoir affecter un livreur.
+                                            </p>
+                                        ) : availableDrivers.length > 0 ? (
                                             <form
                                                 onSubmit={
                                                     submitDriver

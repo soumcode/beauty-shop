@@ -13,6 +13,7 @@ class Order extends Model
         'delivery_fee',
         'total',
         'payment_method',
+        'payment_provider',
         'payment_status',
 
         'delivery_name',
@@ -21,6 +22,12 @@ class Order extends Model
         'delivery_commune',
         'delivery_quartier',
         'delivery_address',
+        'promotion_id',
+        'discount_amount',
+    ];
+
+    protected $casts = [
+        'discount_amount' => 'decimal:2',
     ];
 
     public function user()
@@ -50,7 +57,13 @@ class Order extends Model
             ->latest();
     }
 
-    public function payment(){
+    public function payment()
+    {
         return $this->hasOne(Payment::class);
+    }
+
+    public function promotion()
+    {
+        return $this->belongsTo(Promotion::class);
     }
 }

@@ -11,41 +11,108 @@ use Inertia\Inertia;
 
 class ProductController extends Controller
 {
-    
     public function index(Request $request)
     {
         $search = $request->input('search');
 
         $products = Product::with('category')
             ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%");
+                $query->where(
+                    'name',
+                    'like',
+                    "%{$search}%"
+                );
             })
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return Inertia::render('Admin/Products/Index', [
-            'products' => $products,
+        return Inertia::render(
+            'Admin/Products/Index',
+            [
+                'products' => $products,
 
-            'filters' => [
-                'search' => $search,
-            ],
-        ]);
+                'filters' => [
+                    'search' => $search,
+                ],
+            ]
+        );
     }
 
-    
+    /**
+     * Tableau de gestion du stock.
+     */
+    public function stock(Request $request)
+    {
+        $search = $request->input('search');
+
+        $products = Product::with('category')
+            ->when($search, function ($query, $search) {
+                $query->where(
+                    'name',
+                    'like',
+                    "%{$search}%"
+                );
+            })
+            ->orderBy('stock')
+            ->orderBy('name')
+            ->paginate(15)
+            ->withQueryString();
+
+        $statistics = [
+            'totalProducts' => Product::count(),
+
+            'totalUnits' => (int) Product::sum(
+                'stock'
+            ),
+
+            'outOfStock' => Product::where(
+                'stock',
+                0
+            )->count(),
+
+            'lowStock' => Product::whereBetween(
+                'stock',
+                [1, 5]
+            )->count(),
+
+            'availableProducts' => Product::where(
+                'stock',
+                '>',
+                5
+            )->count(),
+        ];
+
+        return Inertia::render(
+            'Admin/Stock/Index',
+            [
+                'products' => $products,
+                'statistics' => $statistics,
+
+                'filters' => [
+                    'search' => $search,
+                ],
+            ]
+        );
+    }
+
     public function create()
     {
-        $categories = Category::where('is_active', true)
+        $categories = Category::where(
+            'is_active',
+            true
+        )
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('Admin/Products/Create', [
-            'categories' => $categories,
-        ]);
+        return Inertia::render(
+            'Admin/Products/Create',
+            [
+                'categories' => $categories,
+            ]
+        );
     }
 
-    
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -97,39 +164,51 @@ class ProductController extends Controller
             ],
         ]);
 
-        
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')
-                ->store('products', 'public');
+            $validated['image'] =
+                $request
+                    ->file('image')
+                    ->store(
+                        'products',
+                        'public'
+                    );
         }
 
-        
-        $validated['created_by'] = auth()->id();
+        $validated['created_by'] =
+            auth()->id();
 
-        
         Product::create($validated);
 
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Produit créé avec succès.');
+            ->with(
+                'success',
+                'Produit créé avec succès.'
+            );
     }
 
-    
     public function edit(Product $product)
     {
-        $categories = Category::where('is_active', true)
+        $categories = Category::where(
+            'is_active',
+            true
+        )
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('Admin/Products/Edit', [
-            'product' => $product,
-            'categories' => $categories,
-        ]);
+        return Inertia::render(
+            'Admin/Products/Edit',
+            [
+                'product' => $product,
+                'categories' => $categories,
+            ]
+        );
     }
 
-    
-    public function update(Request $request, Product $product)
-    {
+    public function update(
+        Request $request,
+        Product $product
+    ) {
         $validated = $request->validate([
             'category_id' => [
                 'required',
@@ -146,7 +225,8 @@ class ProductController extends Controller
                 'required',
                 'string',
                 'max:255',
-                'unique:products,slug,' . $product->id,
+                'unique:products,slug,'.
+                    $product->id,
             ],
 
             'description' => [
@@ -179,7 +259,6 @@ class ProductController extends Controller
             ],
         ]);
 
-        
         if ($request->hasFile('image')) {
 
             if ($product->image) {
@@ -188,25 +267,37 @@ class ProductController extends Controller
                 );
             }
 
-            $validated['image'] = $request->file('image')
-                ->store('products', 'public');
+            $validated['image'] =
+                $request
+                    ->file('image')
+                    ->store(
+                        'products',
+                        'public'
+                    );
         }
 
-        
-        $product->update($validated);
+        $product->update(
+            $validated
+        );
 
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Produit modifié avec succès.');
+            ->with(
+                'success',
+                'Produit modifié avec succès.'
+            );
     }
 
-    
-    public function destroy(Product $product)
-    {
+    public function destroy(
+        Product $product
+    ) {
         $product->delete();
 
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Produit supprimé avec succès.');
+            ->with(
+                'success',
+                'Produit supprimé avec succès.'
+            );
     }
 }

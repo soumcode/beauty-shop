@@ -81,7 +81,7 @@ export default function PublicLayout({ children }) {
 
                         {}
                         <Link
-                            href={route('cart')}
+                            href={route('cart.index')}
                             className="relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition hover:bg-muted"
                         >
                             <ShoppingCart className="h-5 w-5" />
@@ -177,7 +177,7 @@ export default function PublicLayout({ children }) {
                             </Link>
 
                             <Link
-                                href={route('cart')}
+                                href={route('cart.index')}
                                 onClick={() =>
                                     setMobileMenuOpen(false)
                                 }

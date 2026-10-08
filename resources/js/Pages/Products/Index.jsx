@@ -1,4 +1,6 @@
-import { Link } from '@inertiajs/react'
+import { Link, router, usePage } from '@inertiajs/react'
+import { Heart } from 'lucide-react'
+
 import PublicLayout from '@/layouts/PublicLayout'
 
 import {
@@ -14,7 +16,45 @@ export default function Index({
     products,
     categories,
     filters,
+    favoriteProductIds = [],
 }) {
+    const { auth } = usePage().props
+    const user = auth?.user
+
+    const isFavorite = (productId) => {
+        return favoriteProductIds.includes(Number(productId))
+    }
+
+    const toggleFavorite = (product) => {
+        if (!user) {
+            router.visit(route('login'))
+            return
+        }
+
+        if (isFavorite(product.id)) {
+            router.delete(
+                route(
+                    'client.favorites.destroy',
+                    product.id
+                ),
+                {
+                    preserveScroll: true,
+                }
+            )
+        } else {
+            router.post(
+                route(
+                    'client.favorites.store',
+                    product.id
+                ),
+                {},
+                {
+                    preserveScroll: true,
+                }
+            )
+        }
+    }
+
     return (
         <div className="min-h-screen bg-muted/30">
 
@@ -97,7 +137,7 @@ export default function Index({
                                 >
 
                                     {}
-                                    <div className="aspect-square bg-muted">
+                                    <div className="relative aspect-square bg-muted">
 
                                         {product.image ? (
                                             <img
@@ -109,6 +149,44 @@ export default function Index({
                                             <div className="flex h-full items-center justify-center text-muted-foreground">
                                                 Aucune image
                                             </div>
+                                        )}
+
+                                        {user && (
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="icon"
+                                                className="absolute right-3 top-3 rounded-full shadow-md"
+                                                onClick={() =>
+                                                    toggleFavorite(
+                                                        product
+                                                    )
+                                                }
+                                                title={
+                                                    isFavorite(
+                                                        product.id
+                                                    )
+                                                        ? 'Retirer des favoris'
+                                                        : 'Ajouter aux favoris'
+                                                }
+                                                aria-label={
+                                                    isFavorite(
+                                                        product.id
+                                                    )
+                                                        ? 'Retirer des favoris'
+                                                        : 'Ajouter aux favoris'
+                                                }
+                                            >
+                                                <Heart
+                                                    className={`h-5 w-5 ${
+                                                        isFavorite(
+                                                            product.id
+                                                        )
+                                                            ? 'fill-current text-destructive'
+                                                            : ''
+                                                    }`}
+                                                />
+                                            </Button>
                                         )}
 
                                     </div>

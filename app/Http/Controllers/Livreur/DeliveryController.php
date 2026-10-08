@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Livreur;
 
+use App\Http\Controllers\Controller;
 use App\Models\Delivery;
 use App\Models\OrderStatusHistory;
 use Illuminate\Http\Request;
@@ -10,7 +11,6 @@ use Inertia\Inertia;
 
 class DeliveryController extends Controller
 {
-    
     public function index()
     {
         $deliveries = Delivery::with([
@@ -45,13 +45,14 @@ class DeliveryController extends Controller
         );
     }
 
-    
     public function show(
         Delivery $delivery
     ) {
+        $this->authorize(
+            'view',
+            $delivery
+        );
 
-        $this->authorize('view', $delivery);
-        
         abort_unless(
             $delivery->driver_id ===
             auth()->id(),
@@ -86,12 +87,18 @@ class DeliveryController extends Controller
         );
     }
 
-    
-    public function updateStatus(Request $request, Delivery $delivery)
-    {
-        $this->authorize('updateStatus', $delivery);
+    public function updateStatus(
+        Request $request,
+        Delivery $delivery
+    ) {
+        $this->authorize(
+            'updateStatus',
+            $delivery
+        );
+
         abort_unless(
-            $delivery->driver_id === auth()->id(),
+            $delivery->driver_id ===
+            auth()->id(),
             403
         );
 
@@ -119,78 +126,107 @@ class DeliveryController extends Controller
         $validated = $request->validate([
             'status' => [
                 'required',
+
                 'in:picked_up,out_for_delivery,delivered,failed',
-                function (string $attribute, mixed $value, $fail) use ($delivery, $allowedTransitions) {
+
+                function (
+                    string $attribute,
+                    mixed $value,
+                    $fail
+                ) use (
+                    $delivery,
+                    $allowedTransitions
+                ) {
                     if (
                         ! in_array(
                             $value,
-                            $allowedTransitions[$delivery->status] ?? [],
+                            $allowedTransitions[
+                                $delivery->status
+                            ] ?? [],
                             true
                         )
                     ) {
-                        $fail('Cette transition de livraison n\'est pas autorisée.');
+                        $fail(
+                            'Cette transition de livraison n\'est pas autorisée.'
+                        );
                     }
                 },
             ],
         ]);
 
-        $newDeliveryStatus = $validated['status'];
+        $newDeliveryStatus =
+            $validated['status'];
 
-        DB::transaction(function () use (
-            $delivery,
-            $newDeliveryStatus
-        ) {
-            
+        DB::transaction(
+            function () use (
+                $delivery,
+                $newDeliveryStatus
+            ) {
+                $delivery->load('order');
 
-            $order = $delivery->order;
+                $order = $delivery->order;
 
-            $oldOrderStatus = $order->status;
+                $oldOrderStatus =
+                    $order->status;
 
-            
+                $delivery->status =
+                    $newDeliveryStatus;
 
-            $delivery->status = $newDeliveryStatus;
+                if (
+                    $newDeliveryStatus ===
+                    'picked_up'
+                ) {
+                    $delivery->picked_up_at =
+                        now();
+                }
 
-            if ($newDeliveryStatus === 'picked_up') {
-                $delivery->picked_up_at = now();
-            }
+                if (
+                    $newDeliveryStatus ===
+                    'delivered'
+                ) {
+                    $delivery->delivered_at =
+                        now();
+                }
 
-            if ($newDeliveryStatus === 'out_for_delivery') {
-                
-            }
+                $delivery->save();
 
-            if ($newDeliveryStatus === 'delivered') {
-                $delivery->delivered_at = now();
-            }
+                $newOrderStatus =
+                    match (
+                        $newDeliveryStatus
+                    ) {
+                        'picked_up' => 'assigned',
 
-            $delivery->save();
+                        'out_for_delivery' => 'out_for_delivery',
 
-            
+                        'delivered' => 'delivered',
 
-            $newOrderStatus = match ($newDeliveryStatus) {
-                'picked_up' => 'assigned',
-                'out_for_delivery' => 'out_for_delivery',
-                'delivered' => 'delivered',
-                'failed' => 'ready',
-                default => $oldOrderStatus,
-            };
+                        'failed' => 'ready',
 
-            $order->update([
-                'status' => $newOrderStatus,
-            ]);
+                        default => $oldOrderStatus,
+                    };
 
-            
-
-            if ($oldOrderStatus !== $newOrderStatus) {
-                OrderStatusHistory::create([
-                    'order_id' => $order->id,
+                $order->update([
                     'status' => $newOrderStatus,
-                    'changed_by' => auth()->id(),
-                    'comment' => $this->statusComment(
-                        $newOrderStatus
-                    ),
                 ]);
+
+                if (
+                    $oldOrderStatus !==
+                    $newOrderStatus
+                ) {
+                    OrderStatusHistory::create([
+                        'order_id' => $order->id,
+
+                        'status' => $newOrderStatus,
+
+                        'changed_by' => auth()->id(),
+
+                        'comment' => $this->statusComment(
+                            $newOrderStatus
+                        ),
+                    ]);
+                }
             }
-        });
+        );
 
         return back()->with(
             'success',
@@ -198,8 +234,9 @@ class DeliveryController extends Controller
         );
     }
 
-    private function statusComment(string $status): string
-    {
+    private function statusComment(
+        string $status
+    ): string {
         return match ($status) {
             'out_for_delivery' => 'Commande sortie pour la livraison.',
 

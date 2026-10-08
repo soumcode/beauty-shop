@@ -10,8 +10,12 @@ import {
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 
-export default function Index({ products, filters }) {
+export default function Index({
+    products,
+    filters,
+}) {
     const {
         data,
         setData,
@@ -48,19 +52,41 @@ export default function Index({ products, filters }) {
         )
     }
 
+    const getStockStatus = (stock) => {
+        if (stock === 0) {
+            return {
+                label: 'Rupture',
+                variant: 'destructive',
+            }
+        }
+
+        if (stock <= 5) {
+            return {
+                label: 'Stock faible',
+                variant: 'secondary',
+            }
+        }
+
+        return {
+            label: 'Disponible',
+            variant: 'default',
+        }
+    }
+
     return (
         <div className="p-6">
 
-            {}
-            <div className="mb-6 flex items-center justify-between">
+            {/* En-tête */}
+
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
                     <h1 className="text-2xl font-bold">
                         Produits
                     </h1>
 
-                    <p className="text-muted-foreground">
-                        Gérez les produits de votre boutique.
+                    <p className="mt-1 text-muted-foreground">
+                        Gérez les produits et leur stock.
                     </p>
                 </div>
 
@@ -76,13 +102,15 @@ export default function Index({ products, filters }) {
 
             </div>
 
-            {}
+            {/* Recherche */}
+
             <Card className="mb-6">
+
                 <CardContent className="pt-6">
 
                     <form
                         onSubmit={search}
-                        className="flex gap-3"
+                        className="flex flex-col gap-3 sm:flex-row"
                     >
 
                         <Input
@@ -100,21 +128,27 @@ export default function Index({ products, filters }) {
                             type="submit"
                             disabled={processing}
                         >
-                            Rechercher
+                            {processing
+                                ? 'Recherche...'
+                                : 'Rechercher'}
                         </Button>
 
                     </form>
 
                 </CardContent>
+
             </Card>
 
-            {}
+            {/* Liste des produits */}
+
             <Card>
 
                 <CardHeader>
+
                     <CardTitle>
                         Liste des produits
                     </CardTitle>
+
                 </CardHeader>
 
                 <CardContent>
@@ -124,6 +158,7 @@ export default function Index({ products, filters }) {
                         <table className="w-full">
 
                             <thead>
+
                                 <tr className="border-b text-left">
 
                                     <th className="p-3">
@@ -155,109 +190,194 @@ export default function Index({ products, filters }) {
                                     </th>
 
                                 </tr>
+
                             </thead>
 
                             <tbody>
 
-                                {products.data.map(
-                                    (product) => (
-                                        <tr
-                                            key={product.id}
-                                            className="border-b"
+                                {products.data.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan="7"
+                                            className="p-8 text-center text-muted-foreground"
                                         >
+                                            Aucun produit trouvé.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    products.data.map(
+                                        (product) => {
+                                            const stockStatus =
+                                                getStockStatus(
+                                                    Number(
+                                                        product.stock
+                                                    )
+                                                )
 
-                                            {}
-                                            <td className="p-3">
+                                            return (
+                                                <tr
+                                                    key={
+                                                        product.id
+                                                    }
+                                                    className="border-b"
+                                                >
 
-                                                {product.image ? (
-                                                    <img
-                                                        src={`/storage/${product.image}`}
-                                                        alt={product.name}
-                                                        className="h-16 w-16 rounded-md object-cover"
-                                                    />
-                                                ) : (
-                                                    <span className="text-sm text-muted-foreground">
-                                                        Aucune image
-                                                    </span>
-                                                )}
+                                                    {/* Image */}
 
-                                            </td>
+                                                    <td className="p-3">
 
-                                            {}
-                                            <td className="p-3">
-                                                {product.name}
-                                            </td>
+                                                        {product.image ? (
+                                                            <img
+                                                                src={`/storage/${product.image}`}
+                                                                alt={
+                                                                    product.name
+                                                                }
+                                                                className="h-16 w-16 rounded-md object-cover"
+                                                            />
+                                                        ) : (
+                                                            <span className="text-sm text-muted-foreground">
+                                                                Aucune image
+                                                            </span>
+                                                        )}
 
-                                            {}
-                                            <td className="p-3">
-                                                {product.category?.name}
-                                            </td>
+                                                    </td>
 
-                                            {}
-                                            <td className="p-3">
+                                                    {/* Produit */}
 
-                                                {Number(
-                                                    product.price
-                                                ).toLocaleString(
-                                                    'fr-FR'
-                                                )}{' '}
-                                                FCFA
+                                                    <td className="p-3">
 
-                                            </td>
+                                                        <div>
+                                                            <p className="font-medium">
+                                                                {
+                                                                    product.name
+                                                                }
+                                                            </p>
 
-                                            {}
-                                            <td className="p-3">
-                                                {product.stock}
-                                            </td>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                #{product.id}
+                                                            </p>
+                                                        </div>
 
-                                            {}
-                                            <td className="p-3">
+                                                    </td>
 
-                                                {product.status ===
-                                                'active'
-                                                    ? 'Actif'
-                                                    : 'Inactif'}
+                                                    {/* Catégorie */}
 
-                                            </td>
+                                                    <td className="p-3">
 
-                                            {}
-                                            <td className="p-3">
+                                                        {product.category?.name ??
+                                                            'Sans catégorie'}
 
-                                                <div className="flex gap-2">
+                                                    </td>
 
-                                                    <Button
-                                                        variant="outline"
-                                                        asChild
-                                                    >
-                                                        <Link
-                                                            href={route(
-                                                                'admin.products.edit',
-                                                                product.id
-                                                            )}
+                                                    {/* Prix */}
+
+                                                    <td className="p-3">
+
+                                                        {Number(
+                                                            product.price
+                                                        ).toLocaleString(
+                                                            'fr-FR'
+                                                        )}{' '}
+                                                        FCFA
+
+                                                    </td>
+
+                                                    {/* Stock */}
+
+                                                    <td className="p-3">
+
+                                                        <div className="space-y-1">
+
+                                                            <p className="font-semibold">
+                                                                {
+                                                                    product.stock
+                                                                }{' '}
+                                                                unité
+                                                                {Number(
+                                                                    product.stock
+                                                                ) >
+                                                                1
+                                                                    ? 's'
+                                                                    : ''}
+                                                            </p>
+
+                                                            <Badge
+                                                                variant={
+                                                                    stockStatus.variant
+                                                                }
+                                                            >
+                                                                {
+                                                                    stockStatus.label
+                                                                }
+                                                            </Badge>
+
+                                                        </div>
+
+                                                    </td>
+
+                                                    {/* Statut produit */}
+
+                                                    <td className="p-3">
+
+                                                        <Badge
+                                                            variant={
+                                                                product.status ===
+                                                                'active'
+                                                                    ? 'default'
+                                                                    : 'secondary'
+                                                            }
                                                         >
-                                                            Modifier
-                                                        </Link>
-                                                    </Button>
+                                                            {product.status ===
+                                                            'active'
+                                                                ? 'Actif'
+                                                                : 'Inactif'}
+                                                        </Badge>
 
-                                                    <Button
-                                                        variant="destructive"
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                product.id
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            processing
-                                                        }
-                                                    >
-                                                        Supprimer
-                                                    </Button>
+                                                    </td>
 
-                                                </div>
+                                                    {/* Actions */}
 
-                                            </td>
+                                                    <td className="p-3">
 
-                                        </tr>
+                                                        <div className="flex flex-wrap gap-2">
+
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                asChild
+                                                            >
+                                                                <Link
+                                                                    href={route(
+                                                                        'admin.products.edit',
+                                                                        product.id
+                                                                    )}
+                                                                >
+                                                                    Modifier
+                                                                </Link>
+                                                            </Button>
+
+                                                            <Button
+                                                                variant="destructive"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    handleDelete(
+                                                                        product.id
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    processing
+                                                                }
+                                                            >
+                                                                Supprimer
+                                                            </Button>
+
+                                                        </div>
+
+                                                    </td>
+
+                                                </tr>
+                                            )
+                                        }
                                     )
                                 )}
 
@@ -267,29 +387,32 @@ export default function Index({ products, filters }) {
 
                     </div>
 
-                    {}
-                    <div className="mt-6 flex flex-wrap gap-2">
+                    {/* Pagination */}
 
-                        {products.links.map(
-                            (link, index) => (
-                                <Link
-                                    key={index}
-                                    href={
-                                        link.url ?? '#'
-                                    }
-                                    className={`rounded border px-3 py-2 text-sm ${
-                                        !link.url
-                                            ? 'pointer-events-none opacity-50'
-                                            : ''
-                                    }`}
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                />
-                            )
-                        )}
+                    {products.links?.length > 0 && (
+                        <div className="mt-6 flex flex-wrap gap-2">
 
-                    </div>
+                            {products.links.map(
+                                (link, index) => (
+                                    <Link
+                                        key={index}
+                                        href={
+                                            link.url ?? '#'
+                                        }
+                                        className={`rounded border px-3 py-2 text-sm ${
+                                            !link.url
+                                                ? 'pointer-events-none opacity-50'
+                                                : 'hover:bg-muted'
+                                        }`}
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                )
+                            )}
+
+                        </div>
+                    )}
 
                 </CardContent>
 
@@ -298,7 +421,6 @@ export default function Index({ products, filters }) {
         </div>
     )
 }
-
 
 Index.layout = (page) => (
     <AppLayout>

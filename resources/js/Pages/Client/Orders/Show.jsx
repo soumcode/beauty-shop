@@ -44,6 +44,13 @@ const statusVariants = {
 
 const paymentMethodLabels = {
     cash_on_delivery: 'Paiement à la livraison',
+    online: 'Paiement en ligne',
+}
+
+const paymentProviderLabels = {
+    wave_ci: 'Wave',
+    orange_money_ci: 'Orange Money',
+    mtn_money_ci: 'MTN Money',
 }
 
 const paymentStatusLabels = {
@@ -494,6 +501,18 @@ export default function Show({ order }) {
                                         ] || order.payment_method}
                                     </span>
                                 </div>
+                                {order.payment_provider && (
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-muted-foreground">
+                                            Moyen
+                                        </span>
+                                        <span className="text-sm font-medium">
+                                            {paymentProviderLabels[
+                                                order.payment_provider
+                                            ] || order.payment_provider}
+                                        </span>
+                                    </div>
+                                )}
 
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-muted-foreground">

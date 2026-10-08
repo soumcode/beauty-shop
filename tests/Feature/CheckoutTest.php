@@ -267,4 +267,65 @@ class CheckoutTest extends TestCase
             'status' => 'cancelled',
         ]);
     }
+
+    public function test_out_of_stock_products_are_hidden_from_the_catalog(): void
+    {
+        $client = User::factory()->create([
+            'role' => 'client',
+        ]);
+
+        $category = Category::forceCreate([
+            'name' => 'Soins',
+            'slug' => 'soins-test',
+            'description' => 'Catégorie de test',
+            'is_active' => true,
+        ]);
+
+        $availableProduct = Product::forceCreate([
+            'category_id' => $category->id,
+            'created_by' => $client->id,
+            'name' => 'Sérum disponible',
+            'slug' => 'serum-disponible',
+            'description' => 'Produit de test',
+            'price' => 5000,
+            'stock' => 4,
+            'status' => 'active',
+            'image' => null,
+        ]);
+
+        $soldOutProduct = Product::forceCreate([
+            'category_id' => $category->id,
+            'created_by' => $client->id,
+            'name' => 'Sérum épuisé',
+            'slug' => 'serum-epuise',
+            'description' => 'Produit de test',
+            'price' => 5000,
+            'stock' => 0,
+            'status' => 'active',
+            'image' => null,
+        ]);
+
+        $activeInStockProducts = Product::query()
+            ->where('status', 'active')
+            ->where('stock', '>', 0)
+            ->pluck('id')
+            ->all();
+
+        $this->assertContains($availableProduct->id, $activeInStockProducts);
+        $this->assertNotContains($soldOutProduct->id, $activeInStockProducts);
+
+        $this->get(route('products.show', $soldOutProduct))
+            ->assertNotFound();
+    }
+
+    public function test_products_and_cart_pages_are_accessible(): void
+    {
+        $this->get(route('products.index'))->assertOk();
+        $this->get(route('cart.index'))->assertOk();
+    }
+
+    public function test_homepage_does_not_accept_webhook_posts(): void
+    {
+        $this->post('/')->assertStatus(405);
+    }
 }

@@ -1,265 +1,425 @@
-import { Link, router, usePage } from '@inertiajs/react'
 import {
     BarChart3,
-    Box,
-    ClipboardList,
-    FolderTree,
+    Bell,
+    Heart,
+    LayoutDashboard,
     LogOut,
     MapPin,
-    Menu,
+    Package,
     ShoppingBag,
-    Truck,
-    UserRound,
-    X,
+    ShoppingCart,
+    Tag,
+    User,
 } from 'lucide-react'
+
+import {
+    Link,
+    router,
+    usePage,
+} from '@inertiajs/react'
+
 import { useState } from 'react'
 
 export default function AppLayout({ children }) {
     const { auth } = usePage().props
+
     const user = auth?.user
 
-    const [sidebarOpen, setSidebarOpen] = useState(false)
+    const unreadNotificationsCount =
+        auth?.unreadNotificationsCount ?? 0
 
-    const role = user?.role
+    const [
+        mobileMenuOpen,
+        setMobileMenuOpen,
+    ] = useState(false)
 
-    const roleLabels = {
-        admin: 'Administrateur',
-        client: 'Client',
-        livreur: 'Livreur',
-    }
+    const clientNavigation = [
+        {
+            label: 'Mon dashboard',
+            href: route('dashboard'),
+            icon: LayoutDashboard,
+        },
+        {
+            label: 'Produits',
+            href: route('products.index'),
+            icon: ShoppingBag,
+        },
+        {
+            label: 'Mes commandes',
+            href: route('client.orders.index'),
+            icon: Package,
+        },
+        {
+            label: 'Mes notifications',
+            href: route(
+                'client.notifications.index'
+            ),
+            icon: Bell,
+            badge: unreadNotificationsCount,
+        },
+        {
+            label: 'Mes favoris',
+            href: route(
+                'client.favorites.index'
+            ),
+            icon: Heart,
+        },
+        {
+            label: 'Mon panier',
+            href: route('cart.index'),
+            icon: ShoppingCart,
+        },
+        {
+            label: 'Mes adresses',
+            href: route(
+                'client.addresses.index'
+            ),
+            icon: MapPin,
+        },
+        {
+            label: 'Mon profil',
+            href: route('profile.edit'),
+            icon: User,
+        },
+    ]
 
-    const menus = {
-        admin: [
-            {
-                label: 'Dashboard',
-                href: route('admin.dashboard'),
-                icon: BarChart3,
-            },
-            {
-                label: 'Produits',
-                href: route('admin.products.index'),
-                icon: ShoppingBag,
-            },
-            {
-                label: 'Catégories',
-                href: route('admin.categories.index'),
-                icon: FolderTree,
-            },
-            {
-                label: 'Commandes',
-                href: route('admin.orders.index'),
-                icon: ClipboardList,
-            },
-            {
-                label: 'Livreurs',
-                href: route('admin.drivers.index'),
-                icon: Truck,
-            },
-        ],
+    const adminNavigation = [
+        {
+            label: 'Dashboard',
+            href: route('admin.dashboard'),
+            icon: LayoutDashboard,
+        },
+        {
+            label: 'Produits',
+            href: route(
+                'admin.products.index'
+            ),
+            icon: ShoppingBag,
+        },
+        {
+            label: 'Stock',
+            href: route(
+                'admin.stock.index'
+            ),
+            icon: Package,
+        },
+        {
+            label: 'Catégories',
+            href: route(
+                'admin.categories.index'
+            ),
+            icon: BarChart3,
+        },
+        {
+            label: 'Commandes',
+            href: route(
+                'admin.orders.index'
+            ),
+            icon: Package,
+        },
+        {
+            label: 'Promotions',
+            href: route(
+                'admin.promotions.index'
+            ),
+            icon: Tag,
+        },
+    ]
 
-        client: [
-            {
-                label: 'Mon dashboard',
-                href: route('dashboard'),
-                icon: BarChart3,
-            },
-            {
-                label: 'Produits',
-                href: route('products.index'),
-                icon: ShoppingBag,
-            },
-            {
-                label: 'Mes commandes',
-                href: route('client.orders.index'),
-                icon: ClipboardList,
-            },
-            {
-                label: 'Mon panier',
-                href: route('cart'),
-                icon: Box,
-            },
-            {
-                label: 'Mes adresses',
-                href: route('client.addresses.index'),
-                icon: MapPin,
-            },
-            {
-                label: 'Mon profil',
-                href: route('client.profile.edit'),
-                icon: UserRound,
-            },
-        ],
+    const livreurNavigation = [
+        {
+            label: 'Dashboard',
+            href: route('livreur.dashboard'),
+            icon: LayoutDashboard,
+        },
+        {
+            label: 'Mes livraisons',
+            href: route(
+                'livreur.deliveries.index'
+            ),
+            icon: Package,
+        },
+    ]
 
-        livreur: [
-            {
-                label: 'Dashboard',
-                href: route('livreur.dashboard'),
-                icon: BarChart3,
-            },
-            {
-                label: 'Mes livraisons',
-                href: route('livreur.deliveries.index'),
-                icon: Truck,
-            },
-        ],
-    }
+    const navigation =
+        user?.role === 'admin'
+            ? adminNavigation
+            : user?.role === 'livreur'
+                ? livreurNavigation
+                : clientNavigation
 
-    const currentMenus = menus[role] || []
-
-    const logout = () => {
-        router.post(route('logout'))
-    }
-
-    const isActive = (href) => {
-        const currentPath = window.location.pathname
-        const targetPath = new URL(
-            href,
-            window.location.origin
-        ).pathname
-
-        if (
-            targetPath === '/admin' ||
-            targetPath === '/dashboard' ||
-            targetPath === '/livreur'
-        ) {
-            return currentPath === targetPath
-        }
-
-        return (
-            currentPath === targetPath ||
-            currentPath.startsWith(`${targetPath}/`)
+    const handleLogout = () => {
+        router.post(
+            route('logout')
         )
     }
 
-    const getHomeRoute = () => {
-        if (role === 'admin') {
-            return route('admin.dashboard')
-        }
-
-        if (role === 'livreur') {
-            return route('livreur.dashboard')
-        }
-
-        return route('dashboard')
+    const isActive = (href) => {
+        return window.location.href === href
     }
 
     return (
-        <div className="min-h-screen bg-muted/40">
-            {}
-            {sidebarOpen && (
-                <button
-                    type="button"
-                    aria-label="Fermer le menu"
-                    className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-                    onClick={() => setSidebarOpen(false)}
-                />
-            )}
+        <div className="min-h-screen bg-muted/30">
 
-            {}
-            <aside
-                className={`fixed inset-y-0 left-0 z-50 w-64 border-r bg-background transition-transform duration-200 lg:translate-x-0 ${
-                    sidebarOpen
-                        ? 'translate-x-0'
-                        : '-translate-x-full'
-                }`}
-            >
-                {}
-                <div className="flex h-16 items-center justify-between border-b px-6">
+            {/* Menu mobile */}
+
+            <div className="border-b bg-background md:hidden">
+
+                <div className="flex items-center justify-between px-4 py-4">
+
                     <Link
-                        href={getHomeRoute()}
+                        href={route(
+                            'products.index'
+                        )}
                         className="text-xl font-bold"
-                        onClick={() => setSidebarOpen(false)}
                     >
-                        Beauty Shop
+                        Ma Boutique
                     </Link>
 
                     <button
                         type="button"
-                        className="lg:hidden"
-                        onClick={() => setSidebarOpen(false)}
+                        onClick={() =>
+                            setMobileMenuOpen(
+                                !mobileMenuOpen
+                            )
+                        }
+                        className="rounded-md border px-3 py-2"
                     >
-                        <X className="h-5 w-5" />
+                        Menu
                     </button>
+
                 </div>
 
-                {}
-                <div className="border-b px-6 py-4">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                            <UserRound className="h-5 w-5" />
+                {mobileMenuOpen && (
+                    <div className="border-t px-4 py-4">
+
+                        <nav className="space-y-2">
+
+                            {navigation.map(
+                                (item) => {
+                                    const Icon =
+                                        item.icon
+
+                                    return (
+                                        <Link
+                                            key={
+                                                item.label
+                                            }
+                                            href={
+                                                item.href
+                                            }
+                                            onClick={() =>
+                                                setMobileMenuOpen(
+                                                    false
+                                                )
+                                            }
+                                            className="flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-muted"
+                                        >
+                                            <div className="flex items-center gap-3">
+
+                                                <Icon className="h-5 w-5" />
+
+                                                <span>
+                                                    {
+                                                        item.label
+                                                    }
+                                                </span>
+
+                                            </div>
+
+                                            {item.badge > 0 && (
+                                                <span className="flex min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-xs font-semibold text-destructive-foreground">
+                                                    {item.badge > 99
+                                                        ? '99+'
+                                                        : item.badge}
+                                                </span>
+                                            )}
+
+                                        </Link>
+                                    )
+                                }
+                            )}
+
+                            <button
+                                type="button"
+                                onClick={
+                                    handleLogout
+                                }
+                                className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-destructive hover:bg-muted"
+                            >
+                                <LogOut className="h-5 w-5" />
+
+                                <span>
+                                    Déconnexion
+                                </span>
+                            </button>
+
+                        </nav>
+
+                    </div>
+                )}
+
+            </div>
+
+            <div className="flex min-h-screen">
+
+                {/* Sidebar desktop */}
+
+                <aside className="hidden w-64 border-r bg-background md:block">
+
+                    <div className="flex h-full flex-col">
+
+                        {/* Logo */}
+
+                        <div className="border-b px-6 py-6">
+
+                            <Link
+                                href={route(
+                                    'products.index'
+                                )}
+                                className="text-xl font-bold"
+                            >
+                                Ma Boutique
+                            </Link>
+
                         </div>
 
-                        <div className="min-w-0">
-                            <p className="truncate font-medium">
+                        {/* Utilisateur */}
+
+                        <div className="border-b px-6 py-4">
+
+                            <p className="font-semibold">
                                 {user?.name}
                             </p>
 
-                            <p className="text-sm text-muted-foreground">
-                                {roleLabels[role] || 'Utilisateur'}
+                            <p className="text-sm capitalize text-muted-foreground">
+                                {user?.role}
                             </p>
+
                         </div>
-                    </div>
-                </div>
 
-                {}
-                <nav className="space-y-1 p-4">
-                    {currentMenus.map((item) => {
-                        const Icon = item.icon
-                        const active = isActive(item.href)
+                        {/* Navigation */}
 
-                        return (
-                            <Link
-                                key={item.label}
-                                href={item.href}
-                                onClick={() => setSidebarOpen(false)}
-                                className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition ${
-                                    active
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                }`}
+                        <nav className="flex-1 space-y-1 p-4">
+
+                            {navigation.map(
+                                (item) => {
+                                    const Icon =
+                                        item.icon
+
+                                    const active =
+                                        isActive(
+                                            item.href
+                                        )
+
+                                    return (
+                                        <Link
+                                            key={
+                                                item.label
+                                            }
+                                            href={
+                                                item.href
+                                            }
+                                            className={`flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition ${
+                                                active
+                                                    ? 'bg-primary text-primary-foreground'
+                                                    : 'hover:bg-muted'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-3">
+
+                                                <Icon className="h-5 w-5" />
+
+                                                <span>
+                                                    {
+                                                        item.label
+                                                    }
+                                                </span>
+
+                                            </div>
+
+                                            {item.badge > 0 && (
+                                                <span
+                                                    className={`flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+                                                        active
+                                                            ? 'bg-primary-foreground text-primary'
+                                                            : 'bg-destructive text-destructive-foreground'
+                                                    }`}
+                                                >
+                                                    {item.badge > 99
+                                                        ? '99+'
+                                                        : item.badge}
+                                                </span>
+                                            )}
+
+                                        </Link>
+                                    )
+                                }
+                            )}
+
+                        </nav>
+
+                        {/* Déconnexion */}
+
+                        <div className="border-t p-4">
+
+                            <button
+                                type="button"
+                                onClick={
+                                    handleLogout
+                                }
+                                className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-destructive hover:bg-muted"
                             >
-                                <Icon className="h-5 w-5" />
+                                <LogOut className="h-5 w-5" />
 
-                                <span>{item.label}</span>
-                            </Link>
-                        )
-                    })}
-                </nav>
+                                <span>
+                                    Déconnexion
+                                </span>
+                            </button>
 
-                {}
-                <div className="absolute bottom-0 w-full border-t p-4">
-                    <button
-                        type="button"
-                        onClick={logout}
-                        className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                    >
-                        <LogOut className="h-5 w-5" />
+                        </div>
 
-                        <span>Déconnexion</span>
-                    </button>
-                </div>
-            </aside>
+                    </div>
 
-            {}
-            <div className="lg:pl-64">
-                {}
-                <header className="flex h-16 items-center border-b bg-background px-4 lg:hidden">
-                    <button
-                        type="button"
-                        onClick={() => setSidebarOpen(true)}
-                        className="rounded-md p-2 hover:bg-muted"
-                    >
-                        <Menu className="h-5 w-5" />
-                    </button>
+                </aside>
 
-                    <span className="ml-4 font-semibold">
-                        Beauty Shop
-                    </span>
-                </header>
+                {/* Contenu principal */}
 
-                {}
-                <main>{children}</main>
+                <main className="flex-1">
+
+                    {/* Header desktop */}
+
+                    <header className="hidden border-b bg-background px-6 py-4 md:block">
+
+                        <div className="flex items-center justify-between">
+
+                            <div>
+
+                                <h1 className="text-lg font-semibold">
+                                    Ma Boutique
+                                </h1>
+
+                                <p className="text-sm text-muted-foreground">
+                                    Bienvenue,{' '}
+                                    {user?.name}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </header>
+
+                    {/* Page */}
+
+                    <div>
+                        {children}
+                    </div>
+
+                </main>
+
             </div>
+
         </div>
     )
 }
